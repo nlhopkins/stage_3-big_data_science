@@ -12,12 +12,12 @@
 ### Software & Packages
 
 - R version 4.1.2 or higher\
-- CRAN packages: `tidyverse`, `ggpubr`, `plotly`, `rmarkdown`, `RefManagerR`\
+- CRAN packages: `tidyverse`, `ggpubr`, `plotly`, `rmarkdown`, `RefManagerR`
 
 The output of `sessionInfo()` can be found in [Session Information](session_info.md).
 
 ### Issues
-Some plots are not interactive due to `plotly` being incompatible with `ggplot2`'s stat functions.
+* Some plots are not interactive due to `plotly` being incompatible with `ggplot2`'s stat functions.
 
 -----------------------------------------------------------------------
 <table border="0">

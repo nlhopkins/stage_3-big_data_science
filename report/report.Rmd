@@ -1,17 +1,18 @@
 ---
-title: "Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by a Bacterial Prophage Region"
+title: Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by
+  a Bacterial Prophage Region
 author: "Y3877831"
 output:
-    html_document:
-    css: css/bootstrap-minty.css
-    toc: true
-    depth: 3
-    toc_float:
-      collapsed: true
-      smooth_scroll: false
-    number_sections: true
-    highlight: null
-    df_print: paged
+  html_document: default
+  css: css/bootstrap-minty.css
+  toc: yes
+  depth: 3
+  toc_float:
+    collapsed: no
+    smooth_scroll: yes
+  number_sections: yes
+  highlight: null
+  df_print: paged
 ---
 
 ```{r setup, include = FALSE}
@@ -63,10 +64,8 @@ refs <-
 pkgs <-
     RefManageR::ReadBib("../bibliography/pkgs.bib", check = FALSE)
 ```
-
-
+___
 # Introduction
-
 
 MuGam is a orthologue of eukaryotic proteins Ku70/Ku80, which are involved in recognizing double-strand DNA prior to repair, as well as DNA transposition. In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
 
@@ -80,6 +79,9 @@ The aim of this report is to characterise HiGam by processing the data obtained 
 
 ___
 # Requirements
+Required software and packages are outlined in the [README](README.md).
+
+# Preparing Data
 ```{r ggplot-themes}
 source("../R/themes.R", local = knitr::knit_global())
 ```
@@ -161,12 +163,6 @@ cdna <- pcr %>% # cDNA
 ___
 # Analysis 
 
-## PCR
-Diagnostic PCR was used to amplify the *H. influenzae homologues*, and to test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established using DNA ladder molecular weight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H.
-influenzae*.
-
-$$\Large \color{#8D9FCA} y \color{black} = \color{#E789C2} m \color{#66c2a4} x \color{black} + \color{#FFD82F} c$$
-
 ```{r pcr-linear-models}
 #gDNA
 gdna_mod <- lm(data = gdna_calibration, log ~ rf)
@@ -230,7 +226,13 @@ pcr_plot <- pcr_full %>%
 pcr_interactive <- htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
 ```
 
+## PCR
+Diagnostic PCR was used to amplify the *H. influenzae homologues*, and to test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established using DNA ladder molecular weight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H.
+influenzae*.
 
+$$\Large \color{#8D9FCA} y \color{black} = \color{#E789C2} m \color{#66c2a4} x \color{black} + \color{#FFD82F} c$$
+
+---
 ## Electrophoretic Mobility Shift Assay (EMSA) & Binding Affinity
 
 ```{r emsa-prep}
@@ -242,9 +244,6 @@ emsa <-
 
 ```{r emsa-linear-model}
 emsa_calibration <- emsa_calibration %>% mutate(log = log(expected_size), rf = (gel_length - distance)/gel_length)
-
-emsa_mod_plot <-
-    lm(data = emsa_calibration, log ~ rf) %>% plot(which = 1)
 ```
 
 ```{r nls}
@@ -272,8 +271,9 @@ emsa_plot <- emsa %>%
                colour = "black") +
     stat_function(fun = pred_intercept_emsa, colour = "#66C2A4") +
     mytheme() +
-    scale_y_continuous(limits = c(0, 0.7),
-                       breaks = seq(0, 7, by = 0.15)) +
+    scale_y_continuous(expand = c(0.02, 0.02),
+                       limits = c(0.3, 0.7),
+                       breaks = seq(0.3, 0.7, by = 0.20)) +
     scale_x_continuous(
         expand = c(0.02, 0.02),
         limits = c(0, 4),
@@ -312,8 +312,17 @@ emsa_res_plot <- emsa_res %>%
 emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(2, 1/2))
 ```
 
-Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA bound to closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately 6 x 10-7 M. Results estimate Im9-HiGam has a binding footprint of `` base pairs.
+```{r mw-footprint}
+emsa <- emsa %>%
+  mutate(log = ((emsa$rf * emsa_rf) + emsa_intercept),
+           actual_size = (10^log))
 
+emsa_footprint <- (max((emsa$actual_size) - 330000) / (30626.5 / 2))
+
+```
+
+
+Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA had an affinity for closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately `r signif(emsa_intercept, digits = 2)` M. Results estimate Im9-HiGam has a binding dimeric footprint of `r signif(abs(emsa_footprint), digits = 2)` base pairs.
 
 ## Size Exclusion Chromatography (SEC)
 ```{r standards-plot}
@@ -432,10 +441,10 @@ a254_mw <-
   ) / slope)), digits = 2)
 
 sec_footprint <-
-  abs(round(((a254_mw - a280_mw) / 660 / 2), digits = 2))
+  abs(round(((a254_mw - a280_mw) / 660), digits = 2))
 ```
 
-Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted and a linear regression was performed to determine the relationship between elution volume and molecular weight. The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r a280_mw` Daltons for A280. This gives Im9-HiGam has an estimated monomeric footprint of approximately `r format(sec_footprint, scientific = FALSE)` base pairs.
+Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted and a linear regression was performed to determine the relationship between elution volume and molecular weight. The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r format(a280_mw, scientific = FALSE)` Daltons for A280. This gives Im9-HiGam has an estimated dimeric footprint of approximately `r format(sec_footprint, scientific = FALSE)` base pairs.
 
 # {-}
 ___
