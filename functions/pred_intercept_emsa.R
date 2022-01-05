@@ -1,3 +1,3 @@
 pred_intercept_emsa <- function(x) {
-    (rf_max * x) / (kd + x)
+    (emsa_rf * x) / (emsa_intercept  + x)
 }

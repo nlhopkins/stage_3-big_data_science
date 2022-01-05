@@ -66,12 +66,13 @@ pkgs <-
 
 
 # Introduction
-MuGam is a homologue of eukaryotic proteins Ku70/Ku80, which are involved in recognizing double-strand DNA prior to repair, as well as DNA transposition. In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
+
+
+MuGam is a orthologue of eukaryotic proteins Ku70/Ku80, which are involved in recognizing double-strand DNA prior to repair, as well as DNA transposition. In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
 
 The aim of this report is to characterise HiGam by processing the data obtained from the following experiments:
 
 * Polymerase chain reaction (PCR)
-* Quantitative polymerase chain reaction (qPCR)
 * Electrophoretic mobility shift assay (EMSA)
 * Size-exclusion chromatography (SEC)
 * Analytical ultracentrifugation (AUC) ???
@@ -160,7 +161,11 @@ cdna <- pcr %>% # cDNA
 ___
 # Analysis 
 
-## Linear Regression for gDNA and cDNA PCR
+## PCR
+Diagnostic PCR was used to amplify the *H. influenzae homologues*, and to test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established using DNA ladder molecular weight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H.
+influenzae*.
+
+$$\Large \color{#8D9FCA} y \color{black} = \color{#E789C2} m \color{#66c2a4} x \color{black} + \color{#FFD82F} c$$
 
 ```{r pcr-linear-models}
 #gDNA
@@ -222,42 +227,17 @@ pcr_plot <- pcr_full %>%
     labs(y = "Percentage Difference to Expected Size", x = "Gene")
 
 
-htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
+pcr_interactive <- htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
 ```
 
 
 ## Electrophoretic Mobility Shift Assay (EMSA) & Binding Affinity
+
 ```{r emsa-linear-model}
+emsa_calibration <- emsa_calibration %>% mutate(log = log(expected_size), rf = (gel_length - distance)/gel_length)
+
 emsa_mod_plot <-
     lm(data = emsa_calibration, log ~ rf) %>% plot(which = 1)
-```
-
-```{r emsa-calibrarion-plot}
-emsa_calibration_plot <- emsa_calibration %>%
-    ggplot(aes(x = rf, y = log)) +
-    geom_point(shape = 18,
-               size = 2,
-               colour = "#D23681") +
-    ggtitle("Calibration Plot for EMSA Migration") +
-    scale_x_continuous(
-        expand = c(0.02, 0.02),
-        breaks = seq(0, 1, by = 0.05),
-        name = expression(paste("R"["f"]))
-    ) +
-    scale_y_continuous(
-        expand = c(0, 0.2),
-        breaks = seq(5.4, 7, by = 0.2),
-        name = "log(DNA Molecular Weight in bp)"
-    ) +
-    geom_smooth(
-        method = lm,
-        formula = y ~ x,
-        se = FALSE,
-        colour = "#29a198",
-        linetype = 2,
-        size = 0.5
-    ) +
-    mytheme()
 ```
 
 ```{r nls}
@@ -265,8 +245,13 @@ emsa_fit <- NLS(emsa)
 ```
 
 ```{r extract-pred}
-rf_max = summary(emsa_fit)$coefficients[1, 1]
-kd = summary(emsa_fit)$coefficients[2, 1]
+emsa_rf = summary(emsa_fit)$coefficients[1, 1]
+emsa_intercept = summary(emsa_fit)$coefficients[2, 1]
+
+emsa <- emsa %>% 
+  mutate(log = ((rf * emsa_rf) + emsa_intercept), actual_size = (10 ^ log))
+
+emsa_footprint <- abs(500 / ((max(emsa$actual_size) - 330000) / 30626.5))
 ```
 
 ```{r emsa-diff}
@@ -281,27 +266,27 @@ emsa_res <- emsa %>%
 
 ```{r emsa-res-plot, include = TRUE}
 emsa_plot <- emsa %>%
-  ggplot(aes(x = conc, y = rf)) +
-  geom_point(shape = 20,
-             size = 3,
-             colour = "black") +
-  stat_function(fun = pred_intercept_emsa, colour = "#66C2A4") +
-  mytheme() +
-  scale_y_continuous(limits = c(0, 0.6),
-                     breaks = seq(0, 7, by = 0.10)) +
-  scale_x_continuous(
-    expand = c(0.02, 0.02),
-    limits = c(0, 8),
-    breaks = seq(0, 8, by = 1)
-  ) +
-  xlab(NULL) +
-  ylab(expression(paste(bold(
-    "Relative Front (a.U.)"
-  ))))
+    ggplot(aes(x = primer, y = rf)) +
+    geom_point(shape = 20,
+               size = 3,
+               colour = "black") +
+    stat_function(fun = pred_intercept_emsa, colour = "#66C2A4") +
+    mytheme() +
+    scale_y_continuous(limits = c(0, 0.6),
+                       breaks = seq(0, 7, by = 0.15)) +
+    scale_x_continuous(
+        expand = c(0.02, 0.02),
+        limits = c(0, 8),
+        breaks = seq(0, 8, by = 1)
+    ) +
+    xlab(NULL) +
+    ylab(expression(paste(bold(
+        "Relative Front (a.U.)"
+    ))))
 
 # Plot the residuals and a line showing y = 0
 emsa_res_plot <- emsa_res %>%
-  ggplot(aes(x = conc, y = residuals)) +
+  ggplot(aes(x = primer, y = residuals)) +
   geom_point(shape = 20,
              size = 3,
              colour = "black") +
@@ -325,16 +310,13 @@ emsa_res_plot <- emsa_res %>%
 
 
 emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(1, 1/2))
-
-emsa_grid_plot
-
-htmltools::div(emsa_grid_plot, align = "center")
 ```
 
+Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA bound to closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately 6 x 10-7 M. Results estimate Im9-HiGam has a binding footprint of `` base pairs.
 
 
 ## Size Exclusion Chromatography (SEC)
-```{r standards-plot, include = TRUE}
+```{r standards-plot}
 standards_plot <- standards %>%
     ggplot(aes(
         x = vol,
@@ -358,7 +340,7 @@ standards_plot <- standards %>%
     )
 
 
-htmltools::div(ggplotly(standards_plot, align = "center"))
+standards_interactive <- htmltools::div(ggplotly(standards_plot, align = "center"))
 ```
 
 ```{r mw-ev}
@@ -380,8 +362,6 @@ mw_ev <- standards %>%
         ),
         logmw = log(mw)
     )
-
-mw_ev
 ```
 
 ```{r sec-lm}
@@ -409,11 +389,9 @@ calibration_plot <- mw_ev %>%
         breaks = seq(9, 22, by = 2),
         name = "Elution Volume (mL)"
     )
-
-calibration_plot
 ```
 
-```{r sec-plot, include = TRUE}
+```{r sec-plot}
 sec_plot <- sec %>%
     ggplot(aes(
         x = vol,
@@ -432,22 +410,32 @@ sec_plot <- sec %>%
     ylab("Absorbance (mAU)")
 
 
-htmltools::div(ggplotly(sec_plot, align = "center"))
+sec_interactive_plot <- htmltools::div(ggplotly(sec_plot, align = "center"))
 ```
 
 ```{r sec-mw}
 # Getting the elution volume that corresponds to the maximum value of a curve
-
 volgam <- sec %>%
-    group_by(protein) %>%
-    filter(vol == max(vol))
+  group_by(protein) %>%
+  filter(absorbance == max(absorbance))
 
 # Estimated MW from the 280 nm data
-a280_mw <- exp((volgam$time[1] - intercept) / slope)
+a280_mw <-
+  round(as.numeric(exp((
+    volgam$vol[1] - intercept
+  ) / slope)), digits = 2)
 
 # Estimated MW from the 254 nm data
-a254_mw <- exp((volgam$time[2] - intercept) / slope)
+a254_mw <-
+  round(as.numeric(exp((
+    volgam$vol[2] - intercept
+  ) / slope)), digits = 2)
+
+sec_footprint <-
+  abs(round(((a254_mw - a280_mw) / 660 / 2), digits = 2))
 ```
+
+Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted and a linear regression was performed to determine the relationship between elution volume and molecular weight. The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r a280_mw` Daltons for A280. This gives Im9-HiGam has an estimated monomeric footprint of approximately `r format(sec_footprint, scientific = FALSE)` base pairs.
 
 # {-}
 ___
