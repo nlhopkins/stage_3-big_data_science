@@ -233,6 +233,13 @@ pcr_interactive <- htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align
 
 ## Electrophoretic Mobility Shift Assay (EMSA) & Binding Affinity
 
+```{r emsa-prep}
+emsa <-
+  emsa %>% mutate(rf = round((
+    (gel_length - distance) / gel_length
+  ), digits = 2))
+```
+
 ```{r emsa-linear-model}
 emsa_calibration <- emsa_calibration %>% mutate(log = log(expected_size), rf = (gel_length - distance)/gel_length)
 
@@ -247,36 +254,29 @@ emsa_fit <- NLS(emsa)
 ```{r extract-pred}
 emsa_rf = summary(emsa_fit)$coefficients[1, 1]
 emsa_intercept = summary(emsa_fit)$coefficients[2, 1]
-
-emsa <- emsa %>% 
-  mutate(log = ((rf * emsa_rf) + emsa_intercept), actual_size = (10 ^ log))
-
-emsa_footprint <- abs(500 / ((max(emsa$actual_size) - 330000) / 30626.5))
 ```
 
 ```{r emsa-diff}
 # Calculate the difference between the measured rf and predicted rf value
 # This is needed for the residuals
-emsa_pred <- predict(emsa_fit)
-
 # Calculate residuals to the fit
 emsa_res <- emsa %>%
-    mutate(residuals = rf - emsa_pred)
+    mutate(residuals = rf - predict(emsa_fit))
 ```
 
 ```{r emsa-res-plot, include = TRUE}
 emsa_plot <- emsa %>%
-    ggplot(aes(x = primer, y = rf)) +
+    ggplot(aes(x = conc, y = rf)) +
     geom_point(shape = 20,
                size = 3,
                colour = "black") +
     stat_function(fun = pred_intercept_emsa, colour = "#66C2A4") +
     mytheme() +
-    scale_y_continuous(limits = c(0, 0.6),
+    scale_y_continuous(limits = c(0, 0.7),
                        breaks = seq(0, 7, by = 0.15)) +
     scale_x_continuous(
         expand = c(0.02, 0.02),
-        limits = c(0, 8),
+        limits = c(0, 4),
         breaks = seq(0, 8, by = 1)
     ) +
     xlab(NULL) +
@@ -286,7 +286,7 @@ emsa_plot <- emsa %>%
 
 # Plot the residuals and a line showing y = 0
 emsa_res_plot <- emsa_res %>%
-  ggplot(aes(x = primer, y = residuals)) +
+  ggplot(aes(x = conc, y = residuals)) +
   geom_point(shape = 20,
              size = 3,
              colour = "black") +
@@ -295,7 +295,7 @@ emsa_res_plot <- emsa_res %>%
              size = .5) +
   scale_x_continuous(
     expand = c(0.02, 0.02),
-    limits = c(0, 8),
+    limits = c(0, 4),
     breaks = seq(0, 8, by = 1),
     name = (expression(bold(
       atop("Protein Concentration (μM)", "Im9"["dimer"])
@@ -309,7 +309,7 @@ emsa_res_plot <- emsa_res %>%
   ) + mytheme()
 
 
-emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(1, 1/2))
+emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(2, 1/2))
 ```
 
 Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA bound to closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately 6 x 10-7 M. Results estimate Im9-HiGam has a binding footprint of `` base pairs.
