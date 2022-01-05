@@ -1,0 +1,474 @@
+---
+title: "Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by a Bacterial Prophage Region"
+author: "Y3877831"
+output:
+    html_document:
+    css: css/bootstrap-minty.css
+    toc: true
+    depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+    number_sections: true
+    highlight: null
+    df_print: paged
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    include = FALSE,
+    echo = FALSE,
+    fig.align = "center",
+    fig.retina = 3,
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+```{r pkgs}
+source("../R/00-pkgs.R", local = knitr::knit_global())
+```
+
+```{r write-pkgs-bib}
+knitr::write_bib(
+    c(
+        "base",
+        "RefManageR",
+        "tidyverse",
+        "rmarkdown",
+        "plotly",
+        "ggpubr",
+        "htmltools"
+    ),
+    width = 80,
+    prefix = "",
+    file = "../bibliography/pkgs.bib"
+)
+```
+
+```{r import-bibliography}
+RefManageR::BibOptions(
+    check.entries = FALSE,
+    bib.style = "authoryear",
+    cite.style = "authoryear",
+    style = "markdown",
+    hyperlink = FALSE,
+    dashed = FALSE,
+    longnamesfirst = FALSE,
+    max.names = 3
+)
+
+refs <-
+    RefManageR::ReadBib("../bibliography/refs.bib", check = FALSE)
+pkgs <-
+    RefManageR::ReadBib("../bibliography/pkgs.bib", check = FALSE)
+```
+
+
+# Introduction
+MuGam is a homologue of eukaryotic proteins Ku70/Ku80, which are involved in recognizing double-strand DNA prior to repair, as well as DNA transposition. In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
+
+The aim of this report is to characterise HiGam by processing the data obtained from the following experiments:
+
+* Polymerase chain reaction (PCR)
+* Quantitative polymerase chain reaction (qPCR)
+* Electrophoretic mobility shift assay (EMSA)
+* Size-exclusion chromatography (SEC)
+* Analytical ultracentrifugation (AUC) ???
+
+
+___
+# Requirements
+```{r ggplot-themes}
+source("../R/themes.R", local = knitr::knit_global())
+```
+
+```{r functions}
+source("../functions/count_words.R", local = knitr::knit_global())
+source("../functions/relative_front.R", local = knitr::knit_global())
+source("../functions/pred_intercept_sec.R", local = knitr::knit_global())
+source("../functions/pred_intercept_emsa.R", local = knitr::knit_global())
+source("../functions/nls.R", local = knitr::knit_global())
+```
+
+```{r data-import}
+# Load the PCR data
+pcr <- read.csv("../data/data-raw/pcr.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the PCR calibration data for the gDNA library
+gdna_calibration <-
+  read.csv("../data/data-raw/pcr_gdna_calibration.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the PCR calibration data for the cDNA library
+cdna_calibration <-
+  read.csv("../data/data-raw/pcr_cdna_calibration.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the EMSA data
+emsa <- read.csv("../data/data-raw/emsa.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the EMSA calibration data
+emsa_calibration <-
+  read.csv("../data/data-raw/emsa_calibration.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the SEC standards data
+standards <-
+  read.csv("../data/data-raw/sec_std.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the SEC data
+sec <-
+  read.csv("../data/data-raw/sec_im9higam.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+```
+
+```{r data-tidying}
+standards <- standards %>%
+    rename(
+        c(
+            "Ferritin" = curve_ferritin,
+            "IgG" = curve_ig_g,
+            "Myoglobin" = curve_myoglobin,
+            "Ovalbumin" = curve_ovalbumin,
+            "Thyroglobulin" = curve_thyroglobulin,
+            "Transferrin" = curve_transferrin,
+            "Vitamin B12" = curve_vitamin_b12
+        )
+    ) %>%
+    pivot_longer(cols = !c(x, vol),
+                 names_to = "protein",
+                 values_to = "absorbance_units")
+
+sec <- sec %>%
+    pivot_longer(cols = starts_with("a"),
+                 names_to = "protein",
+                 values_to = "absorbance")
+
+# Separate the PCR data set by DNA library for analysis
+gdna <- pcr %>% # gDNA PCR data
+    filter(library == "gDNA")
+
+cdna <- pcr %>% # cDNA
+    filter(library == "cDNA")
+```
+
+___
+# Analysis 
+
+## Linear Regression for gDNA and cDNA PCR
+
+```{r pcr-linear-models}
+#gDNA
+gdna_mod <- lm(data = gdna_calibration, log ~ rf)
+
+#cDNA
+cdna_mod <- lm(data = cdna_calibration, log ~ rf)
+```
+
+```{r pcr-preperation}
+# gDNA
+gdna <- gdna %>%
+  mutate(
+    rf = relative_front(gdna),
+    log = ((rf * gdna_mod$coefficients[2]) + gdna_mod$coefficients[1]),
+    actual_size = (10 ^ log),
+    diff = ((expected_size - actual_size) / expected_size * 100)
+  )
+
+# cDNA
+cdna <- cdna %>%
+  mutate(
+    rf = relative_front(cdna),
+    log = ((rf * cdna_mod$coefficients[2]) + cdna_mod$coefficients[1]),
+    actual_size = (10 ^ log),
+    diff = ((expected_size - actual_size) / expected_size * 100)
+  )
+
+# join gDNA & cDNA
+pcr_full <- full_join(gdna, cdna, by = NULL)
+```
+
+```{r pcr-plot, include = TRUE}
+pcr_plot <- pcr_full %>%
+    ggplot(aes(
+        x = gene,
+        y = diff,
+        fill = library,
+        text = paste(
+            "Library: ",
+            library,
+            "<br>Gene: ",
+            gene,
+            "<br>Difference: ",
+            round(diff),
+            "%",
+            "<br>Expected Size (bp): ",
+            expected_size,
+            "<br>Actual Size (bp):",
+            round(actual_size)
+        )
+    )) + geom_col(position = "dodge") +
+    geom_hline(yintercept = 0, size = 0.25) +
+    mytheme() +
+    scale_fill_brewer(name = "DNA Library",
+                      labels = c("cDNA", "gDNA"),
+                      palette = "Set3",
+    ) +
+    labs(y = "Percentage Difference to Expected Size", x = "Gene")
+
+
+htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
+```
+
+
+## Electrophoretic Mobility Shift Assay (EMSA) & Binding Affinity
+```{r emsa-linear-model}
+emsa_mod_plot <-
+    lm(data = emsa_calibration, log ~ rf) %>% plot(which = 1)
+```
+
+```{r emsa-calibrarion-plot}
+emsa_calibration_plot <- emsa_calibration %>%
+    ggplot(aes(x = rf, y = log)) +
+    geom_point(shape = 18,
+               size = 2,
+               colour = "#D23681") +
+    ggtitle("Calibration Plot for EMSA Migration") +
+    scale_x_continuous(
+        expand = c(0.02, 0.02),
+        breaks = seq(0, 1, by = 0.05),
+        name = expression(paste("R"["f"]))
+    ) +
+    scale_y_continuous(
+        expand = c(0, 0.2),
+        breaks = seq(5.4, 7, by = 0.2),
+        name = "log(DNA Molecular Weight in bp)"
+    ) +
+    geom_smooth(
+        method = lm,
+        formula = y ~ x,
+        se = FALSE,
+        colour = "#29a198",
+        linetype = 2,
+        size = 0.5
+    ) +
+    mytheme()
+```
+
+```{r nls}
+emsa_fit <- NLS(emsa)
+```
+
+```{r extract-pred}
+rf_max = summary(emsa_fit)$coefficients[1, 1]
+kd = summary(emsa_fit)$coefficients[2, 1]
+```
+
+```{r emsa-diff}
+# Calculate the difference between the measured rf and predicted rf value
+# This is needed for the residuals
+emsa_pred <- predict(emsa_fit)
+
+# Calculate residuals to the fit
+emsa_res <- emsa %>%
+    mutate(residuals = rf - emsa_pred)
+```
+
+```{r emsa-res-plot, include = TRUE}
+emsa_plot <- emsa %>%
+  ggplot(aes(x = conc, y = rf)) +
+  geom_point(shape = 20,
+             size = 3,
+             colour = "black") +
+  stat_function(fun = pred_intercept_emsa, colour = "#66C2A4") +
+  mytheme() +
+  scale_y_continuous(limits = c(0, 0.6),
+                     breaks = seq(0, 7, by = 0.10)) +
+  scale_x_continuous(
+    expand = c(0.02, 0.02),
+    limits = c(0, 8),
+    breaks = seq(0, 8, by = 1)
+  ) +
+  xlab(NULL) +
+  ylab(expression(paste(bold(
+    "Relative Front (a.U.)"
+  ))))
+
+# Plot the residuals and a line showing y = 0
+emsa_res_plot <- emsa_res %>%
+  ggplot(aes(x = conc, y = residuals)) +
+  geom_point(shape = 20,
+             size = 3,
+             colour = "black") +
+  geom_hline(aes(yintercept = 0),
+             col = '#66C2A4',
+             size = .5) +
+  scale_x_continuous(
+    expand = c(0.02, 0.02),
+    limits = c(0, 8),
+    breaks = seq(0, 8, by = 1),
+    name = (expression(bold(
+      atop("Protein Concentration (μM)", "Im9"["dimer"])
+    )))
+  ) +
+  scale_y_continuous(
+    expand = c(0.02, 0.02),
+    limits = c(-0.1, 0.1),
+    breaks = seq(-0.1, 0.1, by = 0.1),
+    name = "Residual (a.U.)"
+  ) + mytheme()
+
+
+emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(1, 1/2))
+
+emsa_grid_plot
+
+htmltools::div(emsa_grid_plot, align = "center")
+```
+
+
+
+## Size Exclusion Chromatography (SEC)
+```{r standards-plot, include = TRUE}
+standards_plot <- standards %>%
+    ggplot(aes(
+        x = vol,
+        y = absorbance_units,
+        colour = protein),
+    show.legend = TRUE) +
+    geom_line() +
+    scale_colour_brewer(name = "Protein",
+                        palette = "Set2") + # colour blind friendly
+    mytheme() +
+    scale_x_continuous(
+        expand = c(0, 0),
+        limits = c(9, 22),
+        breaks = seq(9, 22, by = 1),
+        name = "Elution Volume (mL)"
+    ) + scale_y_continuous(
+        expand = c(0, 0),
+        limits = c(0, 100),
+        breaks = seq(0, 100, by = 10),
+        name = "A280 Absorbance Units (A.U.)"
+    )
+
+
+htmltools::div(ggplotly(standards_plot, align = "center"))
+```
+
+```{r mw-ev}
+mw_ev <- standards %>%
+    group_by(protein) %>%
+    filter(absorbance_units == max(absorbance_units)) %>%
+    summarise(vol) %>%
+    ungroup() %>%
+    mutate(
+        mw = recode(
+            protein,
+            "Thyroglobulin" = 669000,
+            "Ferritin" = 440000,
+            "IgG" = 150000,
+            "Transferrin" = 81000,
+            "Ovalbumin" = 43000,
+            "Myoglobin" = 17000,
+            "Vitamin B12" = 1355
+        ),
+        logmw = log(mw)
+    )
+
+mw_ev
+```
+
+```{r sec-lm}
+linear_reg <- lm(mw_ev$vol ~ mw_ev$logmw)
+intercept <- linear_reg$coefficients[1] # intercept value
+slope <- linear_reg$coefficients[2] # slope value
+```
+
+```{r calibration-plot, include = TRUE}
+calibration_plot <- mw_ev %>%
+    ggplot(mapping = aes(y = vol, x = logmw)) +
+    geom_point() +
+    mytheme() +
+    stat_function(fun = pred_intercept_sec,
+                  colour = "#8D9FCA") +
+    theme(plot.margin = unit(c(1, 1, 1, 1), "cm")) +
+    scale_x_continuous(
+        expand = c(0.05, 0.05),
+        limits = c(7, 14),
+        breaks = seq(7, 14, by = 1),
+        name = "log (MW)"
+    ) + scale_y_continuous(
+        expand = c(0.05, 0.05),
+        limits = c(9, 22),
+        breaks = seq(9, 22, by = 2),
+        name = "Elution Volume (mL)"
+    )
+
+calibration_plot
+```
+
+```{r sec-plot, include = TRUE}
+sec_plot <- sec %>%
+    ggplot(aes(
+        x = vol,
+        y = absorbance,
+        colour = protein),
+    show.legend = TRUE) +
+    geom_line() +
+    scale_colour_brewer(name = "Protein",
+                        labels = c("a280", "a254"),
+                        palette = "Set2") +
+    scale_x_continuous(limits = c(13, 17)) +
+    scale_y_continuous(expand = c(0, 0),
+                       limits = c(0, 100)) +
+    mytheme() +
+    xlab("Elution Volume (mL)") +
+    ylab("Absorbance (mAU)")
+
+
+htmltools::div(ggplotly(sec_plot, align = "center"))
+```
+
+```{r sec-mw}
+# Getting the elution volume that corresponds to the maximum value of a curve
+
+volgam <- sec %>%
+    group_by(protein) %>%
+    filter(vol == max(vol))
+
+# Estimated MW from the 280 nm data
+a280_mw <- exp((volgam$time[1] - intercept) / slope)
+
+# Estimated MW from the 254 nm data
+a254_mw <- exp((volgam$time[2] - intercept) / slope)
+```
+
+# {-}
+___
+**This Document:** `r count_words("report.Rmd")`\
+**README:** `r count_words("../README.md")`\
+**Total:** `r count_words("report.Rmd") + count_words("../README.md")`\
+
+___
+Report made with `rmarkdown` `r Cite(pkgs, c("rmarkdown","rmarkdown2018", "rmarkdown2020"))`, `RefManageR``r Cite(pkgs, "RefManageR")`.\
+
+Theme is *Minty* by [Bootswatch](https://bootswatch.com/minty/).
+
+___
+# Bibliography {.tabset}
+
+## Packages {-}
+```{r pkgs-bib, include = TRUE, results = "asis"}
+RefManageR::PrintBibliography(pkgs)
+```
+
+## References {-}
+```{r refs-bib, include = TRUE, results =  "asis"}
+RefManageR::PrintBibliography(refs)
+```
