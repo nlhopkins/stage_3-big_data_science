@@ -3,16 +3,16 @@ title: Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded 
   a Bacterial Prophage Region
 author: "Y3877831"
 output:
-  html_document: default
-  css: css/bootstrap-minty.css
-  toc: yes
-  depth: 3
-  toc_float:
-    collapsed: no
-    smooth_scroll: yes
-  number_sections: yes
-  highlight: null
-  df_print: paged
+  bookdown::html_document2:
+    css: css/bootstrap-minty.css
+    toc: yes
+    depth: 3
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+    number_sections: yes
+    highlight: null
+    df_print: paged
 ---
 
 ```{r setup, include = FALSE}
@@ -39,7 +39,8 @@ knitr::write_bib(
         "rmarkdown",
         "plotly",
         "ggpubr",
-        "htmltools"
+        "htmltools",
+        "kableExtra"
     ),
     width = 80,
     prefix = "",
@@ -162,7 +163,7 @@ cdna <- pcr %>% # cDNA
 
 ___
 # Analysis 
-
+## PCR
 ```{r pcr-linear-models}
 #gDNA
 gdna_mod <- lm(data = gdna_calibration, log ~ rf)
@@ -194,7 +195,7 @@ cdna <- cdna %>%
 pcr_full <- full_join(gdna, cdna, by = NULL)
 ```
 
-```{r pcr-plot, include = TRUE}
+```{r pcr-fig, include = TRUE, fig.cap = "(fig:pcr-fig)"}
 pcr_plot <- pcr_full %>%
     ggplot(aes(
         x = gene,
@@ -223,12 +224,11 @@ pcr_plot <- pcr_full %>%
     labs(y = "Percentage Difference to Expected Size", x = "Gene")
 
 
-pcr_interactive <- htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
+htmltools::div(ggplotly(pcr_plot, tooltip = c("text")), align = "center")
 ```
 
-## PCR
 Diagnostic PCR was used to amplify the *H. influenzae homologues*, and to test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established using DNA ladder molecular weight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H.
-influenzae*.
+influenzae*. Figure \@(fig:pcr-fig) shows
 
 $$\Large \color{#8D9FCA} y \color{black} = \color{#E789C2} m \color{#66c2a4} x \color{black} + \color{#FFD82F} c$$
 
@@ -263,7 +263,18 @@ emsa_res <- emsa %>%
     mutate(residuals = rf - predict(emsa_fit))
 ```
 
-```{r emsa-res-plot, include = TRUE}
+```{r mw-footprint}
+emsa <- emsa %>%
+  mutate(log = ((emsa$rf * emsa_rf) + emsa_intercept),
+           actual_size = (10^log))
+
+emsa_footprint <- (max((emsa$actual_size) - 330000) / (30626.5 / 2))
+
+```
+
+Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA had an affinity for closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately `r signif(emsa_intercept, digits = 2)` (\@ref(fig:emsa-fig)). Results estimate Im9-HiGam has a binding dimeric footprint of `r signif(abs(emsa_footprint), digits = 2)` base pairs.
+
+```{r emsa-fig, include = TRUE, fig.cap = "(fig:emsa-fig)"}
 emsa_plot <- emsa %>%
     ggplot(aes(x = conc, y = rf)) +
     geom_point(shape = 20,
@@ -309,49 +320,11 @@ emsa_res_plot <- emsa_res %>%
   ) + mytheme()
 
 
-emsa_grid_plot <- ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(2, 1/2))
+ggarrange(emsa_plot, emsa_res_plot, nrow = 2, ncol = 1, widths = c(2, 1/2))
 ```
 
-```{r mw-footprint}
-emsa <- emsa %>%
-  mutate(log = ((emsa$rf * emsa_rf) + emsa_intercept),
-           actual_size = (10^log))
-
-emsa_footprint <- (max((emsa$actual_size) - 330000) / (30626.5 / 2))
-
-```
-
-
-Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA had an affinity for closed circular DNA or linear DNA. Im9-HiGam was observed to bind preferentially to linear DNA with a KD of approximately `r signif(emsa_intercept, digits = 2)` M. Results estimate Im9-HiGam has a binding dimeric footprint of `r signif(abs(emsa_footprint), digits = 2)` base pairs.
-
+___
 ## Size Exclusion Chromatography (SEC)
-```{r standards-plot}
-standards_plot <- standards %>%
-    ggplot(aes(
-        x = vol,
-        y = absorbance_units,
-        colour = protein),
-    show.legend = TRUE) +
-    geom_line() +
-    scale_colour_brewer(name = "Protein",
-                        palette = "Set2") + # colour blind friendly
-    mytheme() +
-    scale_x_continuous(
-        expand = c(0, 0),
-        limits = c(9, 22),
-        breaks = seq(9, 22, by = 1),
-        name = "Elution Volume (mL)"
-    ) + scale_y_continuous(
-        expand = c(0, 0),
-        limits = c(0, 100),
-        breaks = seq(0, 100, by = 10),
-        name = "A280 Absorbance Units (A.U.)"
-    )
-
-
-standards_interactive <- htmltools::div(ggplotly(standards_plot, align = "center"))
-```
-
 ```{r mw-ev}
 mw_ev <- standards %>%
     group_by(protein) %>%
@@ -379,49 +352,6 @@ intercept <- linear_reg$coefficients[1] # intercept value
 slope <- linear_reg$coefficients[2] # slope value
 ```
 
-```{r calibration-plot, include = TRUE}
-calibration_plot <- mw_ev %>%
-    ggplot(mapping = aes(y = vol, x = logmw)) +
-    geom_point() +
-    mytheme() +
-    stat_function(fun = pred_intercept_sec,
-                  colour = "#8D9FCA") +
-    theme(plot.margin = unit(c(1, 1, 1, 1), "cm")) +
-    scale_x_continuous(
-        expand = c(0.05, 0.05),
-        limits = c(7, 14),
-        breaks = seq(7, 14, by = 1),
-        name = "log (MW)"
-    ) + scale_y_continuous(
-        expand = c(0.05, 0.05),
-        limits = c(9, 22),
-        breaks = seq(9, 22, by = 2),
-        name = "Elution Volume (mL)"
-    )
-```
-
-```{r sec-plot}
-sec_plot <- sec %>%
-    ggplot(aes(
-        x = vol,
-        y = absorbance,
-        colour = protein),
-    show.legend = TRUE) +
-    geom_line() +
-    scale_colour_brewer(name = "Protein",
-                        labels = c("a280", "a254"),
-                        palette = "Set2") +
-    scale_x_continuous(limits = c(13, 17)) +
-    scale_y_continuous(expand = c(0, 0),
-                       limits = c(0, 100)) +
-    mytheme() +
-    xlab("Elution Volume (mL)") +
-    ylab("Absorbance (mAU)")
-
-
-sec_interactive_plot <- htmltools::div(ggplotly(sec_plot, align = "center"))
-```
-
 ```{r sec-mw}
 # Getting the elution volume that corresponds to the maximum value of a curve
 volgam <- sec %>%
@@ -445,6 +375,73 @@ sec_footprint <-
 ```
 
 Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted and a linear regression was performed to determine the relationship between elution volume and molecular weight. The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r format(a280_mw, scientific = FALSE)` Daltons for A280. This gives Im9-HiGam has an estimated dimeric footprint of approximately `r format(sec_footprint, scientific = FALSE)` base pairs.
+
+### {.tabset}
+#### SEC analysis {-}
+```{r sec-fig, include = TRUE, fig.cap= "(fig:sec-fig)"}
+sec_plot <- sec %>%
+    ggplot(aes(
+        x = vol,
+        y = absorbance,
+        colour = protein),
+    show.legend = TRUE) +
+    geom_line() +
+    scale_colour_brewer(name = "Protein",
+                        labels = c("a280", "a254"),
+                        palette = "Set2") +
+    scale_x_continuous(limits = c(13, 17)) +
+    scale_y_continuous(expand = c(0, 0),
+                       limits = c(0, 100)) +
+    mytheme() +
+    xlab("Elution Volume (mL)") +
+    ylab("Absorbance (mAU)")
+
+
+htmltools::div(ggplotly(sec_plot, align = "center"))
+```
+#### SEC Standards {-}
+```{r standards-plot, include = TRUE}
+standards_plot <- standards %>%
+    ggplot(aes(
+        x = vol,
+        y = absorbance_units,
+        colour = protein),
+    show.legend = TRUE) +
+    geom_line() +
+    scale_colour_brewer(name = "Protein",
+                        palette = "Set2") + # colour blind friendly
+    mytheme() +
+    scale_x_continuous(
+        expand = c(0, 0),
+        limits = c(9, 22),
+        breaks = seq(9, 22, by = 1),
+        name = "Elution Volume (mL)"
+    ) + scale_y_continuous(
+        expand = c(0, 0),
+        limits = c(0, 100),
+        breaks = seq(0, 100, by = 10),
+        name = "A280 Absorbance Units (A.U.)"
+    )
+
+
+htmltools::div(ggplotly(standards_plot, align = "center"))
+```
+
+#### SEC dataset {-}
+```{r sec-tab, include = TRUE}
+sec[2:4] %>%
+  pivot_wider(names_from = "protein",
+              values_from = "absorbance") %>% 
+  knitr::kable(
+    caption = "SEC Absorbencies for a254 & a280",
+    digits = 2,
+    col.names = c("Volume",
+                  "a254",
+                  "a280")
+  ) %>%
+  kable_styling(font_size = 15) %>% 
+  collapse_rows(columns = 1)
+```
 
 # {-}
 ___
