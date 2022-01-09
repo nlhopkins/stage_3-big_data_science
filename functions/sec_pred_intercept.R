@@ -1,3 +1,3 @@
 sec_pred_intercept <- function(x) {
-    (linear_reg$coefficients[1]) + (linear_reg$coefficients[2] * x)
+    (lm(sec_standards$vol ~ sec_standards$logmw)$coefficients[1]) + (lm(sec_standards$vol ~ sec_standards$logmw)$coefficients[2] * x)
 }
