@@ -16,7 +16,9 @@ author: "Y3877831"
 ### Software & Packages
 
 - R version 4.1.2 or higher\
-- CRAN packages: `tidyverse`, `ggpubr`, `plotly`, `rmarkdown`, `RefManagerR`, `htmltools`, `kableExtra`, and `showtext`.
+- CRAN packages: `tidyverse`, `ggpubr`, `plotly`, `rmarkdown`, `RefManagerR`, `kableExtra`, and `showtext`.
+
+- devtools::install_github("benmarwick/wordcountaddin", type = "source", dependencies = TRUE)
 
 The output of `sessionInfo()` can be found in [Session Information](session_info.md).
 
