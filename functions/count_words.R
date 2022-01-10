@@ -71,4 +71,3 @@ remove_html_comment <- function(x) {
     filter(remove != TRUE) %>%
     select(-.data$start_comment, -.data$end_comment, -.data$remove)
 }
-
