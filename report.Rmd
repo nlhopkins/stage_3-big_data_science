@@ -77,26 +77,7 @@ pkgs <-
 ___
 # Introduction
 
-Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. 
-They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. 
-Ku is a heterodimer of Ku70/Ku80 subunits. 
-It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events 
-`r Cite(refs, "DAdda_di_Fagagna2003-kb")`. 
-Homologues of Ku have been found in many bacteria. 
-The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. 
-Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. 
-In bacteria, Mu acts as a transposable element 
-`r Cite(refs, "Fuller2017-ex")` 
-– meaning it can change its position within the genome and replicate by forming two replication forks 
-`r Cite(refs, "Shapiro1979-gf")`. 
-The Mu transposon involves 3 proteins: MuA, MuB, and MuGam 
-`r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`. 
-MuB polymerises adjacent to the *E. coli* target site and associates with MuA.
-MuA binds specific target sites and synapses them together to form the transposon. 
-MuA remains bound until it is disassembled by the ATP-ClpX chaperone 
-`r Cite(refs, "Harshey2012-qe")`. 
-Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. 
-Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). 
+Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events `r Cite(refs, "DAdda_di_Fagagna2003-kb")`. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element `r Cite(refs, "Fuller2017-ex")` – meaning it can change its position within the genome and replicate by forming two replication forks `r Cite(refs, "Shapiro1979-gf")`. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam `r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`. MuB polymerises adjacent to the *E. coli* target site and associates with MuA.MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone `r Cite(refs, "Harshey2012-qe")`. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). 
 HGT is the transfer of foreign DNA between organisms and significantly contributes to the spread of antibiotic resistance and evolution in bacteria 
 `r Cite(refs, "Gyles2014-wy")`.
 
@@ -104,13 +85,7 @@ HGT is the transfer of foreign DNA between organisms and significantly contribut
 knitr::include_graphics("images/mu_transposition.jpg")
 ```
 
-MuGam enables natural competence in *E. coli* and is therefore a putative agent of HGT. Bacteria possessing a Gam-like prophage region should also be naturally competent. 
-In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases 
-`r Cite(refs, "DAdda_di_Fagagna2003-kb")`. 
-Through sequence alignment, we identified and cloned a putative homologue of Mu phage Gam from *Haemophilus influenzae* (HiGam). 
-The structure – including binding affinity, oligomeric state – of HiGam was assessed in comparison to MuGam in literature. 
-A range of assays were used to achieve this, namely polymerase chain reaction (PCR),  electrophoretic mobility shift assay (EMSA), and size exclusion chromatography (SEC). 
-Similarities to Mu will insinuate that HiGam will too function as an agent of horizontal gene transfer.
+MuGam enables natural competence in *E. coli* and is therefore a putative agent of HGT. Bacteria possessing a Gam-like prophage region should also be naturally competent. In *Haemophilus influenzae*, Gam (HiGam) inhibits digestion of Mu phage DNA by nucleases `r Cite(refs, "DAdda_di_Fagagna2003-kb")`. Through sequence alignment, we identified and cloned a putative homologue of Mu phage Gam from *Haemophilus influenzae* (HiGam). The structure – including binding affinity, oligomeric state – of HiGam was assessed in comparison to MuGam in literature. A range of assays were used to achieve this, namely polymerase chain reaction (PCR),  electrophoretic mobility shift assay (EMSA), and size exclusion chromatography (SEC). Similarities to Mu will insinuate that HiGam will too function as an agent of horizontal gene transfer.
 
 The aim of this report is to characterise HiGam by processing the data obtained from assays.
 
@@ -202,12 +177,39 @@ cdna <- pcr %>% # cDNA PCR data
 
 ___
 # Analysis 
-All analyses are executed in R 
-`r Cite(pkgs, "base")`. 
-Plots are created with 
-`ggplot2` `r Cite(pkgs, "ggplot2")` 
-and, where applicable, are made interactive with 
-`plotly` `r Cite(pkgs, c("plotly", "plotly2020"))`.
+Analyses of data is executed in R `r Cite(pkgs, "base")`. Plots are created with `ggplot2` `r Cite(pkgs, "ggplot2")` and, where applicable, are made interactive with `plotly` `r Cite(pkgs, c("plotly", "plotly2020"))`.
+
+
+
+## Identification & Alignment of MuGam Prophage Homologues {.tabset}
+BLASTp[6–8] was used to identify homologues of MuGam within Escherichia coli and Haemophilus influenzae. Significant sequences were aligned in COBALT`r Cite(refs, "Papadopoulos2007-zl")` and ClustalOmega`r Cite(refs, "Sievers2011-xs")` to yield the optimised alignment between MuGam, E. coli Gam and H. influenzae Gam (fig \@ref(fig:align)). Prophage regions of H. influenzae were interrogated in PHASTER[11], identifying two prophage regions, one of which was intact and derived from Enterobacteria phage Mu (Fig. \@ref(tab:id)) and contained homologues of MuA, MuB, and MuGam (Table 1). The H. influenzae homologues are potentially polycistronic, as they are oriented in the same way as Mu phage
+
+### ClustalOmega Alignment
+```{r align, out.width = "80%", fig.cap = " Sequences with low E values and a percent identity of >50% were aligned in COBALT and ClustalOmega. Figure shows the ClustalOmega multiple alignment of MuGam (NP_050614.1), Escherichia coli O157:H7 str. Sakai (NP_312979.1), and Haemophilus influenzae Rd KW20 (NP_439634.1). ‘*’ = residues in that column are identical in all aligned sequences, ‘:’ = conserved substitution has been observed,’.’ = semi-conserved substitutions are observed.", include = TRUE}
+knitr::include_graphics("images/align.png")
+```
+
+### Genetic Maps
+```{r maps, out.width = "80%", fig.cap = "Genetic maps for *Enterobacteria* MuPhage (GenBank NC_000829.1) and *Haemophilus influenzae* (GenBank NC_000907.1) produced with PHASTER. *H. influenzae* contained one intact 38.3Kb region with multiple open reading frames (ORFs). Labels identify MuGam and putative HiGam homologues.", include = TRUE}
+knitr::include_graphics("images/map.png")
+```
+### BLAST Alignments
+```{r id, include = TRUE}
+data.frame(
+  "amplicon" = c("HiA", "HiB", "HiGam"),
+  "e_value" = c("2e-149", "5e-86", "4e-70"),
+  "percent_identity" = c("39.61", "46.44", "60.53")
+) %>%
+  knitr::kable(
+    caption = " Mu homologues in H. influenzae were aligned in BLAST, identifying HiA, HiB, and HiGam. Their E values and percent identity are consistent with them being homologues of Mu.",
+    digits = 2,
+    col.names = c("Amplicon",
+                  "E Value",
+                  "Percent Identity (%)")
+  ) %>%
+  collapse_rows(columns = 1) %>%
+  kable_styling(font_size = 15)
+```
 
 ## Diagnostic PCR of the Mu Prophage Region in Haemophilus influenzae Genomic DNA and cDNA {.tabset}
 ```{r pcr-linear-models}
@@ -246,16 +248,14 @@ cdna <- cdna %>%
 # join gDNA & cDNA datasets
 pcr_full <- full_join(gdna, cdna, by = NULL)
 ```
-Diagnostic PCR was used to amplify the *H. influenzae homologues* and test for their transcription relative to the Genomic DNA (gDNA) control. 
-Amplicon sizes were established with equation \@ref(eq:log), using DNA ladder molecular weight (MW) standards. 
-Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H. influenzae* (Fig \@ref(fig:pcr-fig)).
+Diagnostic PCR was used to amplify the *H. influenzae homologues* and test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established with equation \@ref(eq:log), using DNA ladder molecularweight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H. influenzae* (Fig. \@ref(fig:pcr-fig)).
 
 \begin{equation}
 \Large \color{#8D9FCA} y \color{#5a5a5a} = \color{#E789C2} m \color{#66c2a4} x \color{#5a5a5a} + \color{#FFD82F} c\\
 \small \text{Where } \color{#8D9FCA} y = \text{log(DNA MW in bp), } \color{#E789C2} m = \text{gradient, } \color{#66c2a4} x = \text{Rf, and } \color{#FFD82F} c = \text{y-intercept}(\#eq:log)
 \end{equation}
 
-### PCR Expressed Amplicons {.unnumbered}
+### PCR Expressed Amplicons {-}
 ```{r pcr-fig, include = TRUE, fig.cap = "Expression levels of HiA, HiB and HiGam ORFs in the complementary DNA (cDNA) and genomic DNA (gDNA) libraries, compared to their expected sizes. Results indicate that HiA, HiB and HiGam genes are expressed, and that poly-cistronic transcripts encoding HiA-HiB and HiB-HiGam gene pairs exist in *H. influenzae*."}
 # plot of the merged PCR data showing the expressed genes and the percentage difference of actual size to expected size
 pcr_plot <- pcr_full %>%
@@ -297,8 +297,12 @@ ggsave(
 ggplotly(pcr_plot, tooltip = c("text"), align = "center")
 ```
 
+### PCR {-}
+```{r pcr-atae-fig, out.width = "80%", fig.cap = " Diagnostic PCR analysis of Haemophilus influenzae gDNA and cDNA were analysed using 1.5% (w/v) agarose-TAE gel electrophoresis. Primers were used to determine whether HiA, HiB, and HiGam open reading frames were expressed in the cDNA library. In a separate reaction, gDNA was used as a positive control for PCR to define the size of expected amplicons.", include = TRUE}
+knitr::include_graphics("images/pcr.png")
+```
 
-### PCR Dataset {#pcr-tab}
+### PCR Dataset {-}
 ```{r pcr-tab, include = TRUE}
 # Table of the full PCR dataset
 pcr_full %>%
@@ -357,27 +361,16 @@ emsa_footprint <-
 
 ```
 
-Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA had an affinity for closed circular DNA or linear DNA. 
-EMSA was performed using purified, recombinant Im9-HiGam, with supercoiled plasmid plasmid DNA and linear DNA templates. 
-A fixed concentration of DNA was used with varying concentrations of Im9-HiGam to saturate binding to DNA. 
-Rf was calculated in R using equation \@ref(eq:rf).
+Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGam–DNA had an affinity for closed circular DNA or linear DNA. EMSA was performed using purified, recombinant Im9-HiGam, with supercoiled plasmid plasmid DNA and linear DNA templates. A fixed concentration of DNA was used with varying concentrations of Im9-HiGam to saturate binding to DNA. Rf was calculated in R using equation \@ref(eq:rf).
 
 \begin{equation} 
 \frac{(\text{gel length} - \text{distance})}{\text{gel length}}(\#eq:rf)
 \end{equation}
 
-In R 
-`r Cite(pkgs, "base")`, 
-NLS was used to predict the ($K_D$), and a linear model predicted the binding footprint. 
-Im9-HiGam was observed to bind preferentially to linear DNA with a dissociation constant ($K_D$) of approximately 
-`r signif(kd, digits = 2)`
-M (Fig \@ref(fig:emsa-fig)). 
-Results estimate Im9-HiGam has a binding monomeric footprint of approximately 
-`r signif(abs(emsa_footprint), digits = 2)` 
-base pairs.
+In R `r Cite(pkgs, "base")`, NLS was used to predict the ($K_D$), and a linear model predicted the binding footprint. Im9-HiGam was observed to bind preferentially to linear DNA with a dissociation constant ($K_D$) of approximately `r signif(kd, digits = 2)`M (Fig. \@ref(fig:emsa-fig)). Results estimate Im9-HiGam has a binding monomeric footprint of approximately `r signif(abs(emsa_footprint), digits = 2)` base pairs.
 
 ___
-### EMSA Analysis {.unnumbered}
+### EMSA Analysis {-}
 ```{r emsa-fig, include = TRUE, fig.cap = "The binding affinity (equilibrium dissociation constant, $K_D$) was estimated by nonlinear regression analysis (NLS) of EMSA using the Langmuir Binding Isotherm."}
 emsa_plot <- emsa %>%
   ggplot(aes(x = conc, y = rf)) +
@@ -440,7 +433,7 @@ ggsave("figures/emsa_plot.pdf", plot = emsa_full,
        width = 20, unit = "cm")
 ```
 
-### EMSA Dataset {#emsa-tab}
+### EMSA Dataset {-}
 ```{r emsa-tab, include = TRUE, fig.cap = "Molecular weight was determined using Rf (equation \\@ref(eq:rf)) of bands and the linear regression equation acquired by the linear regression analysis of the MW ladder bands. Expected weights were obtained by ExPASy ProtParam"}
 # EMSA Dataset
 emsa %>%
@@ -492,18 +485,9 @@ a254_mw <- sec_mw("a254")
 sec_footprint <- (a254_mw - a280_mw) / 660
 ```
 
-Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 
-7 chromatograms of known MW were plotted (Fig \@ref(fig:sec-std-fig)) and a linear regression was performed to determine the relationship between elution volume and molecular weight (Fig \@ref(fig:sec-calib-fig)). 
-The SEC data showed a peak for both wavelengths, with a MW of approximately 
-`r format(a254_mw, scientific = FALSE)` 
-Daltons for A254 and 
-`r format(a280_mw, scientific = FALSE)` 
-Daltons for A280 (Fig \@ref(fig:sec-fig)). 
-This gives Im9-HiGam has an estimated monomeric footprint of approximately 
-`r format(round(sec_footprint, digits = 2), scientific = FALSE)` 
-base pairs.
+Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted (Fig. \@ref(fig:sec-std-fig)) and a linear regression was performed to determine the relationship between elution volume and molecular weight (Fig. \@ref(fig:sec-calib-fig)). The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r format(a280_mw, scientific = FALSE)` Daltons for A280 (Fig. \@ref(fig:sec-fig)). This gives Im9-HiGam has an estimated monomeric footprint of approximately `r format(round(sec_footprint, digits = 2), scientific = FALSE)` base pairs.
 
-### SEC Elution {.unnumbered}
+### SEC Elution {-}
 ```{r sec-fig, include = TRUE, fig.cap = "Plot of $A_{254}$ (DNA absorption) and $A_{280}$ (protein absorption) SEC data vs. elution volume for Im9-HiGam. The MW of both peaks was determined using the linear regression equation acquired by linear regression analysis of protein standards (Fig \\@ref(fig:sec-std-fig) and \\@ref(fig:sec-calib-fig))."}
 sec_plot <- sec %>%
   mutate(protein = recode(protein, "a280" = "A280", "a254" = "A254")) %>% 
@@ -531,7 +515,7 @@ ggsave(
 ggplotly(align = "center")
 ```
 
-### SEC Standards {.unnumbered}
+### SEC Standards {-}
 ```{r sec-std-fig, include = TRUE, fig.cap = "Molecular weight standards using the following calibration globular proteins: Thyroglobulin, Ferritin, IgG, Transferrin, Ovalbumin, Myoglobin, and Vitamin B12."}
 standards_plot <- standards %>%
   ggplot(aes(x = vol,
@@ -565,7 +549,7 @@ ggsave(
 )
 ```
 
-### SEC Calibration Plot {.unnumbered}
+### SEC Calibration Plot {-}
 ```{r sec-calib-fig, include = TRUE, fig.cap = "Plot of the elution volume vs log(molecular weight) for the 7 standard proteins (Fig \\@ref(sec-std-fig))."}
 sec_std_plot <- sec_standards %>%
   ggplot(mapping = aes(y = vol, x = logmw)) +
@@ -596,7 +580,7 @@ ggsave(
 )
 ```
 
-### SEC Dataset {.unnumbered}
+### SEC Dataset {-}
 ```{r sec-tab, include = TRUE, fig.cap = "SEC Dataset"}
 sec %>%
   select(-x) %>%
@@ -616,96 +600,57 @@ sec %>%
 
 # {-}
 # Discussion
-Mu is a phage of *E. coli*, which is an Enterobacteria. 
-So, we looked to identify sequence homologues of MuGam in other species. 
-Similarity to Mu was identified in a range of bacteria, including *Salmonella*, *Shigella*, *E. coli sakai* and *Haemophilus influenzae*. 
-*H. influenzae* was selected for analysis as it is a naturally competent bacterial strain. 
-In Mu, the Pe RNA promoter 
-`r Cite(refs, "Stoddard1989-xc")`
-upstream of MuA, MuB and MuGam enables operon-like polycistronic transcription. 
-Hence, the same would be expected of Mu homologues (designated HiA, HiB, and HiGam). 
-We found that *H. influenzae* contained an intact plasmid with sequences and orientations consistent with being homologues of MuA, MuB, and MuGam (Fig. 2, Fig. 3, & Table 1). 
-The percent identities for HiA and HiB were both <50%, which raises concerns as to whether the proteins will be functional. 
-Their activity could be analysed by reconstituting a transposon in vitro using recombinant HiA and HiB 
-`r Cite(refs, "Mizuuchi1983-qq")`.
-
-A range of primers was designed for diagnostic PCR, quantitative PCR, and cloning of the putative Mu homologues in *H. influenzae* and the cDNA library (Table 2). 
-To determine whether they are polycistronic, primers targeting the intergenic regions between HiA-HiB, and HiB-HiGam were designed. 
-Gel electrophoresis of the diagnostic PCR analysis showed products for both intergenic regions, inferring that they may be polycistronic. 
-This could be confirmed by targeting the HiA-HiGam region; however, this large amplicon would separate poorly on the gel and provide inconclusive results. 
-qPCR with SYBR Green I dye could also be used to quantify the expression of the open reading frames, using the qPCR primers listed in Table 2. 
-Studies have shown that fucolokinase (fucK) PCR 
-`r Cite(refs, "Abdeldaim2013-le")`, 
-which specifically targets the fucK gene, can act as an endogenous control for *H. influenzae*. 
-This would normalise the level of gene expression, allowing for more sensitive and specific quantification. 
-We would then be able to follow any changes in HiA, HiB, and HiGam expression during different cell phases. 
+Mu is a phage of *E. coli*, which is an Enterobacteria. So, we looked to identify sequence homologues of MuGam in other species. Similarity to Mu was identified in a range of bacteria, including *Salmonella*, *Shigella*, *E. coli sakai* and *Haemophilus influenzae*. *H. influenzae* was selected for analysis as it is a naturally competent bacterial strain. In Mu, the $P_e$ RNA promoter `r Cite(refs, "Stoddard1989-xc")` upstream of MuA, MuB and MuGam enables operon-like polycistronic transcription. Hence, the same would be expected of Mu homologues (designated HiA, HiB, and HiGam). We found that *H. influenzae* contained an intact plasmid with sequences and orientations consistent with being homologues of MuA, MuB, and MuGam (Fig. 2, Fig. 3, & Table 1). The percent identities for HiA and HiB were both <50%, which raises concerns as to whether the proteins will be functional. Their activity could be analysed by reconstituting a transposon in vitro using recombinant HiA and HiB `r Cite(refs, "Mizuuchi1983-qq")`.
 
 ## Oligomeric State & Binding Preference of HiGam
-The structure of HiGam has previously modelled on eukaryotic Ku 
-`r Cite(refs, "DAdda_di_Fagagna2003-kb")`
-, as shown in Fig. 9. 
-However, a homologue of MuGam from *Desulfovibrio vulgaris* (DvGam) is known to have a structure much like Ku and is the same solution states as both Ku and MuGam. 
-The central cavity of the *D. vulgaris* Gam model 
-`r Cite(refs, "Bhattacharyya2018-ok")`
-, however, is twice as wide as that in Ku. 
-This could potentially allow binding to two helices of DNA, aiding in the formation of two replication forks typical of transposable events (see Fig \@ref(fig:mu-fig)).
+The structure of HiGam has previously modelled on eukaryotic Ku `r Cite(refs, "DAdda_di_Fagagna2003-kb")`, as shown in Fig. \@ref(fig:ku). However, a homologue of MuGam from *Desulfovibrio vulgaris* (DvGam) is known to have a structure much like Ku and is the same solution states as both Ku and MuGam. The central cavity of the *D. vulgaris* Gam model `r Cite(refs, "Bhattacharyya2018-ok")`, however, is twice as wide as that in Ku. This could potentially allow binding to two helices of DNA, aiding in the formation of two replication forks typical of transposable events (see Fig. \@ref(fig:mu-fig)).
 
-Alignment in BLAST 
-`r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))` 
-showed no significant similarity between Human Ku with H. influenzae, nor MuGam. 
-However, *D. vulgaris* Mu shared a similarity of ~27% with both *H. influenzae* and MuPhage (Appendix 5). 
-This information would advocate for DvGam as a more appropriate than Ku for developing a homology model of the crystal structure of HiGam.
+```{r ku, include = TRUE, out.width = "80%", fig.cap = "A. Structural model of Desulfovibrio vulgaris Gam Homologue. B. Structural model of Desulfovibrio vulgaris Gam Dimer C. Model of HiGam-DNA complex based on homology with Ku70/Ku80 heterodimer D. Structure of the eukaryotic Ku-DNA complex."}
 
-MuGam non-specifically binds to double-stranded linear DNA 
-`r Cite(refs, "Bhattacharyya2018-ok")`
-, with an estimated the $K_D$ 1.2 x 10-8 M. 
-MuGam is a homodimer that forms a ring-like crystal structure, preventing it from binding to circular DNA (Fig. 11). 
-The binding ability of HiGam was tested with an electrophoretic mobility shift assay (EMSA). 
-Historically, MuGam has poor solubility 
-`r Cite(refs, "Abraham1990-ec")`. 
-Since we’d expect the same from HiGam, the solubility of fusion proteins for EMSA analysis was compared (Fig. 5 & Table 4). 
-His13-HiGam exhibited poor solubility, whereas His7-Im9-HiGam had improved levels of solubility. 
-However, the poor solubility of HiGam lacking Im9 creates speculation as to whether translated HiGam will be soluble in the bacterium. 
-As predicted, Im9-HiGam bound preferentially to linear DNA. Analysis non-linear regression analysis using the Langmuir Isotherm showed that Im9-HiGam bound to linear DNA with an estimated KD (affinity ) of approximately 6 x 10-7 M. 
-Both the KD of MuGam and HiGam are considered high. 
-This value alone isn’t significant – fluorescence anisotropy (FA) could be used to improve the accuracy of the KD 
-`r Cite(refs, "Bhattacharyya2018-ok")`.
+knitr::include_graphics("images/ku.png")
+```
+
+Alignment in BLAST `r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))` showed no significant similarity between Human Ku with H. influenzae, nor MuGam. However, *D. vulgaris* Mu shared a similarity of ~27% with both *H. influenzae* and MuPhage (Appendix 5). This information would advocate for DvGam as a more appropriate than Ku for developing a homology model of the crystal structure of HiGam.
+
+```{r blast, include = TRUE, out.width = "80%", fig.cap = "BLASTp sequence alignments of *Desulfovibrio vulgaris* (WP_010938435), MuPhage (NP_050614.1), and *Haemophilus influenzae* (NP_439634.1). No significant similarity was identified between the former and Ku70 (P12956.2) or Ku80 (P13010.3)."}
+data.frame(
+  "sequence_1" = c("H. influenzae", "MuPhage", "H. influenzae"),
+  "e_value" = c("1e-09", "2e-10", "9e-08"),
+  "percent_identity" = c(27.10, 26.32, 27.66),
+  "sequence_2" = c("D. vulgaris", "MuPhage", "D. vulgaris")
+) %>% 
+  knitr::kable(
+    digits = 2,
+    col.names = c("Sequence 1",
+                  "E Value",
+                  "Percent Identity",
+                  "Sequence 2")
+  ) %>%
+  collapse_rows(columns = 1) %>%
+  kable_styling(font_size = 15)
+```
+
+
+MuGam non-specifically binds to double-stranded linear DNA `r Cite(refs, "Bhattacharyya2018-ok")`, with an estimated the $K_D$ `r signif(kd, digits = 2)` M. MuGam is a homodimer that forms a ring-like crystal structure, preventing it from binding to circular DNA \@ref(fig:ring-fig). The binding ability of HiGam was tested with an electrophoretic mobility shift assay (EMSA). Historically, MuGam has poor solubility `r Cite(refs, "Abraham1990-ec")`. Since we’d expect the same from HiGam, the solubility of fusion proteins for EMSA analysis was compared (Fig. 5 & Table 4). His13-HiGam exhibited poor solubility, whereas His7-Im9-HiGam had improved levels of solubility. he poor solubility of HiGam lacking Im9 creates speculation as to whether translated HiGam will be soluble in the bacterium. As predicted, Im9-HiGam bound preferentially to linear DNA. Analysis non-linear regression analysis using the Langmuir Isotherm showed that Im9-HiGam bound to linear DNA with an estimated KD (affinity ) of approximately 6 x 10-7 M. Both the KD of MuGam and HiGam are considered high. This value alone isn’t significant – fluorescence anisotropy (FA) could be used to improve the accuracy of the $K_D$ `r Cite(refs, "Bhattacharyya2018-ok")`.
+
+```{r ring-fig, include = TRUE, out.width = "80%", fig.cap = "Diagrams shows how the ring structure of homodimer MuGam binds to linear DNA. MuGam ‘slides’ onto linear DNA. The ring structure is closed, so MuGam cannot bind to circular DNA."}
+
+knitr::include_graphics("images/mugam_ring.png")
+
+```
+
 
 ## Molecular Weight of HiGam
-We had previously determined molecular weight with ExPASy Protparam and SDS-PAGE. 
-However, both methods are based on amino acid content and give the mass of a monomer. 
-Therefore, we used size exclusion chromatography (SEC) to determine the oligomeric state of HiGam. 
-SEC of HiGam has previously indicated that it is also a dimer by producing molecular weights roughly twice that of a monomer (MuGam monomer ~21kDa, assay measured 39kDa) 
-`r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
+We had previously determined molecular weight with ExPASy Protparam and SDS-PAGE. However, both methods are based on amino acid content and give the mass of a monomer. Therefore, we used size exclusion chromatography (SEC) to determine the oligomeric state of HiGam. SEC of HiGam has previously indicated that it is also a dimer by producing molecular weights roughly twice that of a monomer `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
 
-Our SEC analysis was performed by lysing cells that Im9-HiGam with a DNase buffer. 
-Samples were measured at two absorbances to detect DNA (A254) and protein (A280). 
-The results presented two peaks: an A254 peak eluting at 14.85mL with a molecular weight of 77703.42 Da, and an A280 peak eluting at 15.35mL with a molecular weight of 58853.65 Da. 
-DNA is present despite the use of DNase. 
-This is because, as we know from the SDS-PAGE, Im9-HiGam binds to linear DNA. 
-Any DNA bound to Im9-HiGam is protected from DNase activity. 
-This is reflective of the function observed in MuGam, which binds to linear DNA to protect it from exonucleases. 
-Therefore, the peak at A254 is the molecular weight of both DNA and Im9-HiGam. 
-While the peak at A280 is just protein, so we would assume that this is the molecular weight of Im9-HiGam alone. 
+Our SEC analysis was performed by lysing cells that Im9-HiGam with a DNase buffer. Samples were measured at two absorbances to detect DNA ($A_{254}$) and protein ($A_{280}$). The results presented two peaks: a molecular weight of `r a254_mw` Da for $A_{254}$, and molecular weight of `r a280_mw`Da for $A_{280}$. DNA is present despite the use of DNase. This is because, as we know from the SDS-PAGE, Im9-HiGam binds to linear DNA. Any DNA bound to Im9-HiGam is protected from DNase activity. This is reflective of the function observed in MuGam, which binds to linear DNA to protect it from exonucleases. Therefore, the peak at $A_{254}$ is the molecular weight of both DNA and Im9-HiGam. While the peak at $A_{280}$ is just protein, so we would assume that this is the molecular weight of Im9-HiGam alone. 
 
-The molecular weight of Im9-HiGam determined by SEC is consistent with those given by ExPASy ProtParam 
-`r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))` 
-and the SDS-PAGE analysis (Table 5), with a difference of approximately 4% and 6%, respectively. 
-This is substantial evidence to propose that HiGam is a homodimer, as predicted by homology models (Fig. 9 B & C), even in the absence of solution. 
-To further support this value, the sedimentation equilibrium analytical ultracentrifugation (seAUC) could be used as another non-destructive method of analysing the molecular weight of HiGam in solution 
-`r Cite(refs, "Rhodes2009-uq")`.
+The molecular weight of Im9-HiGam determined by SEC is consistent with those given by ExPASy ProtParam `r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))` and the SDS-PAGE analysis (Table 5), with a difference of approximately 4% and 6%, respectively. This is substantial evidence to propose that HiGam is a homodimer, as predicted by homology models (Fig. 9 B & C), even in the absence of solution. To further support this value, the sedimentation equilibrium analytical ultracentrifugation (seAUC) could be used as another non-destructive method of analysing the molecular weight of HiGam in solution `r Cite(refs, "Rhodes2009-uq")`.
 
-The size of the DNA binding footprint was determined by EMSA and SEC analysis are consistent with one another (calculations outlined in Fig. 6 & Fig. 8). 
-Though, SEC analysis of Ku and DvGam should be performed for comparison, as this will help us understand which homology model is most appropriate. 
-As DvGam has a central cavity twice the size of Ku 
-`r Cite(refs, "Bhattacharyya2018-ok")`, 
-we would expect its binding footprint to appear smaller than Ku.
+The size of the DNA binding footprint was determined by EMSA and SEC analysis are consistent with one another (calculations outlined in Fig. 6 & Fig. 8). Though, SEC analysis of Ku and DvGam should be performed for comparison, as this will help us understand which homology model is most appropriate. As DvGam has a central cavity twice the size of Ku `r Cite(refs, "Bhattacharyya2018-ok")`, we would expect its binding footprint to appear smaller than Ku.
 
 # Conclusion
-We have established that *Haemophilus influenzae* contains a prophage region derivative of Mu, containing a homologue of MuGam. 
-In these assays, HiGam demonstrated homology to MuGam: HiGam too binds to linear DNA with a strong affinity, and evidence points to it being a dimer, even in the absence of solution. 
-However, there are a significant number of sequence truncations to imply that HiGam may not be translated or functional in vivo. Further assays, as mentioned, will need to confirm this. 
-Though, even if this were not the case, we would still need to establish whether functional HiGam has an impact on the level of horizontal gene transfer within *H. influenzae.*
+We have established that *Haemophilus influenzae* contains a prophage region derivative of Mu, containing a homologue of MuGam. In these assays, HiGam demonstrated homology to MuGam: HiGam too binds to linear DNA with a strong affinity, and evidence points to it being a dimer, even in the absence of solution. However, there are a significant number of sequence truncations to imply that HiGam may not be translated or functional in vivo. Further assays, as mentioned, will need to confirm this. Though, even if this were not the case, we would still need to establish whether functional HiGam has an impact on the level of horizontal gene transfer within *H. influenzae.*
 
 ___
 **This Document:** 
