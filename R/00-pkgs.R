@@ -1,7 +1,0 @@
-library(tidyverse)
-library(plotly)
-library(ggpubr)
-library(RefManageR)
-library(kableExtra)
-library(showtext)
-library(wordcountaddin)
