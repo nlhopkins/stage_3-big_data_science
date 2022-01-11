@@ -14,7 +14,7 @@ output:
     global_numbering: yes
     highlight: null
     df_print: paged
----
+---0
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -141,6 +141,16 @@ sec <-
   read.csv("data/data-raw/sec_im9higam.csv", header = TRUE) %>%
   janitor::clean_names()
 
+# Load the SDS Paage data
+sds <-
+  read.csv("data/data-raw/sds.csv", header = TRUE) %>%
+  janitor::clean_names()
+
+# Load the SDS Calibration data
+sds_calibration <-
+  read.csv("data/data-raw/sds_calibration.csv", header = TRUE) %>%
+  janitor::clean_names()
+
 ```
 
 ```{r data-tidying}
@@ -193,6 +203,7 @@ knitr::include_graphics("images/align.png")
 ```{r maps, out.width = "80%", fig.cap = "Genetic maps for *Enterobacteria* MuPhage (GenBank NC_000829.1) and *Haemophilus influenzae* (GenBank NC_000907.1) produced with PHASTER. *H. influenzae* contained one intact 38.3Kb region with multiple open reading frames (ORFs). Labels identify MuGam and putative HiGam homologues.", include = TRUE}
 knitr::include_graphics("images/map.png")
 ```
+
 ### BLAST Alignments
 ```{r id, include = TRUE}
 data.frame(
@@ -326,6 +337,56 @@ pcr_full %>%
   kable_styling(font_size = 15, position = "center")
 ```
 
+___
+## Assessing the Solubility of Two Different Recombinant Escherichia coli HiGam  {.tabset}
+Cell lysates[15] of two His-tagged[16] E. coli HiGam proteins, His$_{13}$-HiGam and His$_7$-Im9-HiGam, were fractionated into soluble and insoluble protein. They were then analysed by SDS-PAGE and direct Western blotting (Fig. \@ref(fig:sds-fig)) to detect His-tagged protein within the fractions. Fractions were consistent with their expected molecular weights[17,18] (Table \@ref(tab:sds-tab)). His$_7$-Im9-HiGam was determined to have the best solubility for overproducing HiGam.
+
+### Western Blot {-}
+```{r sds-fig, include = TRUE, out.width = "80%", fig.cap = "Western blot of the SDS-PAGE analysis for BL21(DE3)* cells transformed with pCSG6 plasmid (His13-HiGam) and MG1655 cells transformed with pQE2-Im9-HiGam plasmid (His7-Im9-HiGam). Soluble fractions induced with His7-Im9-HiGam produced a higher yield than those induced with HiGam. Orange markers indicate the post-induction fractions for comparison."}
+
+knitr::include_graphics("images/western_blot.png")
+
+```
+
+### Molecular Weight {-}
+
+```{r sds-calib}
+sds_calibration <- sds_calibration %>%
+  mutate(rf = (
+    (sds_calibration$gel_length - sds_calibration$distance) / sds_calibration$gel_length
+  ),
+  log = log10(weight_da))
+
+sds_mod <- lm(sds_calibration$log ~ sds_calibration$rf)
+```
+
+```{r sds-tab, include = TRUE}
+
+sds %>%
+  mutate(rf = ((gel_length - distance) / gel_length),
+         log = ((rf * sds_mod$coefficients[2]) + sds_mod$coefficients[1]),
+         actual_weight = 10 ^ log,
+         diff = ((expected_weight - actual_weight) / expected_weight) * 100) %>% 
+  select(-log, -gel_length, -distance) %>%
+  knitr::kable(
+    caption = "Molecular weight was determined using Rf of bands and the linear regression equation acquired by the linear regression analysis of the MW ladder bands. Expected weights were obtained by ExPASy ProtParam.",
+    booktabs = T,
+    digits = 2,
+    col.names = c(
+      "Column",
+      "Sample",
+      "Expected Weight (Da)",
+      "Relative Front (Rf)",
+      "Actual Size (Da)",
+      "Size Difference (%)"
+    )
+  ) %>%
+  collapse_rows(columns = 3) %>%
+  kable_styling(font_size = 15, position = "center")
+
+```
+
+
 ---
 ## Analyse DNA-Binding Properties of HiGam in EMSA {.tabset}
 ```{r emsa-prep}
@@ -367,11 +428,11 @@ Electrophoretic mobility shift assay (EMSA) was used to examine whether Im9-HiGa
 \frac{(\text{gel length} - \text{distance})}{\text{gel length}}(\#eq:rf)
 \end{equation}
 
-In R `r Cite(pkgs, "base")`, NLS was used to predict the ($K_D$), and a linear model predicted the binding footprint. Im9-HiGam was observed to bind preferentially to linear DNA with a dissociation constant ($K_D$) of approximately `r signif(kd, digits = 2)`M (Fig. \@ref(fig:emsa-fig)). Results estimate Im9-HiGam has a binding monomeric footprint of approximately `r signif(abs(emsa_footprint), digits = 2)` base pairs.
+In R `r Cite(pkgs, "base")`, NLS was used to predict the ($K_d$), and a linear model predicted the binding footprint. Im9-HiGam was observed to bind preferentially to linear DNA with a dissociation constant ($K_d$) of approximately `r signif(kd, digits = 2)`M (Fig. \@ref(fig:emsa-fig)). Results estimate Im9-HiGam has a binding monomeric footprint of approximately `r signif(abs(emsa_footprint), digits = 2)` base pairs.
 
 ___
 ### EMSA Analysis {-}
-```{r emsa-fig, include = TRUE, fig.cap = "The binding affinity (equilibrium dissociation constant, $K_D$) was estimated by nonlinear regression analysis (NLS) of EMSA using the Langmuir Binding Isotherm."}
+```{r emsa-fig, include = TRUE, fig.cap = "The binding affinity (equilibrium dissociation constant, $K_d$) was estimated by nonlinear regression analysis (NLS) of EMSA using the Langmuir Binding Isotherm."}
 emsa_plot <- emsa %>%
   ggplot(aes(x = conc, y = rf)) +
   geom_point(shape = 20,
@@ -477,15 +538,18 @@ sec_standards <- standards %>%
 ```{r sec-mw}
 # Getting the elution volume that corresponds to the maximum value of a curve
 
-a280_elution <- round(sec_elution("a280"), digits = 2)
-a254_elution <- round(sec_elution("a254"), digits = 2)
+a280_elution <- format(round(sec_elution("a280"), digits = 2), scientific = FALSE)
+a254_elution <- format(round(sec_elution("a254"), digits = 2), scientific = FALSE)
 a280_mw <- sec_mw("a280")
 a254_mw <- sec_mw("a254")
 
-sec_footprint <- (a254_mw - a280_mw) / 660
+sec_footprint <- round((a254_mw - a280_mw) / 660, digits = 2)
+
+a280_mw <- format(round(a280_mw, digits = 2), scientific = FALSE)
+a254_mw <- format(round(a254_mw, digits = 2), scientific = FALSE)
 ```
 
-Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted (Fig. \@ref(fig:sec-std-fig)) and a linear regression was performed to determine the relationship between elution volume and molecular weight (Fig. \@ref(fig:sec-calib-fig)). The SEC data showed a peak for both wavelengths, with a MW of approximately `r format(a254_mw, scientific = FALSE)` Daltons for A254 and `r format(a280_mw, scientific = FALSE)` Daltons for A280 (Fig. \@ref(fig:sec-fig)). This gives Im9-HiGam has an estimated monomeric footprint of approximately `r format(round(sec_footprint, digits = 2), scientific = FALSE)` base pairs.
+Size exclusion chromatography (SEC) was used to explore the molecular weight and oligomeric state of Im9-HiGam. 7 chromatograms of known MW were plotted (Fig. \@ref(fig:sec-std-fig)) and a linear regression was performed to determine the relationship between elution volume and molecular weight (Fig. \@ref(fig:sec-calib-fig)). The SEC data showed a peak for both wavelengths, with a MW of approximately `r a254_mw` Daltons for $A_{254}$ and `r a280_mw` Daltons for $A_{280}$ (Fig. \@ref(fig:sec-fig)). This gives Im9-HiGam has an estimated monomeric footprint of approximately `r sec_footprint` base pairs.
 
 ### SEC Elution {-}
 ```{r sec-fig, include = TRUE, fig.cap = "Plot of $A_{254}$ (DNA absorption) and $A_{280}$ (protein absorption) SEC data vs. elution volume for Im9-HiGam. The MW of both peaks was determined using the linear regression equation acquired by linear regression analysis of protein standards (Fig \\@ref(fig:sec-std-fig) and \\@ref(fig:sec-calib-fig))."}
@@ -630,8 +694,7 @@ data.frame(
   kable_styling(font_size = 15)
 ```
 
-
-MuGam non-specifically binds to double-stranded linear DNA `r Cite(refs, "Bhattacharyya2018-ok")`, with an estimated the $K_D$ `r signif(kd, digits = 2)` M. MuGam is a homodimer that forms a ring-like crystal structure, preventing it from binding to circular DNA \@ref(fig:ring-fig). The binding ability of HiGam was tested with an electrophoretic mobility shift assay (EMSA). Historically, MuGam has poor solubility `r Cite(refs, "Abraham1990-ec")`. Since we’d expect the same from HiGam, the solubility of fusion proteins for EMSA analysis was compared (Fig. 5 & Table 4). His13-HiGam exhibited poor solubility, whereas His7-Im9-HiGam had improved levels of solubility. he poor solubility of HiGam lacking Im9 creates speculation as to whether translated HiGam will be soluble in the bacterium. As predicted, Im9-HiGam bound preferentially to linear DNA. Analysis non-linear regression analysis using the Langmuir Isotherm showed that Im9-HiGam bound to linear DNA with an estimated KD (affinity ) of approximately 6 x 10-7 M. Both the KD of MuGam and HiGam are considered high. This value alone isn’t significant – fluorescence anisotropy (FA) could be used to improve the accuracy of the $K_D$ `r Cite(refs, "Bhattacharyya2018-ok")`.
+MuGam non-specifically binds to double-stranded linear DNA `r Cite(refs, "Bhattacharyya2018-ok")`, with an estimated $K_d$ of 1.2 x 10$^{-8}$M. MuGam is a homodimer that forms a ring-like crystal structure, preventing it from binding to circular DNA \@ref(fig:ring-fig). The binding ability of HiGam was tested with an electrophoretic mobility shift assay (EMSA). Historically, MuGam has poor solubility `r Cite(refs, "Abraham1990-ec")`. Since we’d expect the same from HiGam, the solubility of fusion proteins for EMSA analysis was compared (Fig. 5 & Table 4). His13-HiGam exhibited poor solubility, whereas His7-Im9-HiGam had improved levels of solubility. The poor solubility of HiGam lacking Im9 creates speculation as to whether translated HiGam will be soluble in the bacterium. As predicted, Im9-HiGam bound preferentially to linear DNA. Analysis non-linear regression analysis using the Langmuir Isotherm showed that Im9-HiGam bound to linear DNA with an estimated $K_d$ (affinity) of approximately `r signif(kd, digits = 2)`M. Both the KD of MuGam and HiGam are considered high. This value alone isn’t significant – fluorescence anisotropy (FA) could be used to improve the accuracy of the $K_d$ `r Cite(refs, "Bhattacharyya2018-ok")`.
 
 ```{r ring-fig, include = TRUE, out.width = "80%", fig.cap = "Diagrams shows how the ring structure of homodimer MuGam binds to linear DNA. MuGam ‘slides’ onto linear DNA. The ring structure is closed, so MuGam cannot bind to circular DNA."}
 
@@ -643,9 +706,29 @@ knitr::include_graphics("images/mugam_ring.png")
 ## Molecular Weight of HiGam
 We had previously determined molecular weight with ExPASy Protparam and SDS-PAGE. However, both methods are based on amino acid content and give the mass of a monomer. Therefore, we used size exclusion chromatography (SEC) to determine the oligomeric state of HiGam. SEC of HiGam has previously indicated that it is also a dimer by producing molecular weights roughly twice that of a monomer `r Cite(refs, "DAdda_di_Fagagna2003-kb")`.
 
-Our SEC analysis was performed by lysing cells that Im9-HiGam with a DNase buffer. Samples were measured at two absorbances to detect DNA ($A_{254}$) and protein ($A_{280}$). The results presented two peaks: a molecular weight of `r a254_mw` Da for $A_{254}$, and molecular weight of `r a280_mw`Da for $A_{280}$. DNA is present despite the use of DNase. This is because, as we know from the SDS-PAGE, Im9-HiGam binds to linear DNA. Any DNA bound to Im9-HiGam is protected from DNase activity. This is reflective of the function observed in MuGam, which binds to linear DNA to protect it from exonucleases. Therefore, the peak at $A_{254}$ is the molecular weight of both DNA and Im9-HiGam. While the peak at $A_{280}$ is just protein, so we would assume that this is the molecular weight of Im9-HiGam alone. 
+Our SEC analysis was performed by lysing cells that Im9-HiGam with a DNase buffer. Samples were measured at two absorbances to detect DNA ($A_{254}$) and protein ($A_{280}$). DNA is present despite the use of DNase \@ref(fig:sec-fig). This is because, as we know from the SDS-PAGE, Im9-HiGam binds to linear DNA. Any DNA bound to Im9-HiGam is protected from DNase activity. This is reflective of the function observed in MuGam, which binds to linear DNA to protect it from exonucleases. Therefore, the peak at $A_{254}$ is the molecular weight of both DNA and Im9-HiGam. While the peak at $A_{280}$ is just protein, so we would assume that this is the molecular weight of Im9-HiGam alone. 
 
-The molecular weight of Im9-HiGam determined by SEC is consistent with those given by ExPASy ProtParam `r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))` and the SDS-PAGE analysis (Table 5), with a difference of approximately 4% and 6%, respectively. This is substantial evidence to propose that HiGam is a homodimer, as predicted by homology models (Fig. 9 B & C), even in the absence of solution. To further support this value, the sedimentation equilibrium analytical ultracentrifugation (seAUC) could be used as another non-destructive method of analysing the molecular weight of HiGam in solution `r Cite(refs, "Rhodes2009-uq")`.
+
+The molecular weight of Im9-HiGam determined by SEC is consistent with those given by ExPASy ProtParam `r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))` and the SDS-PAGE analysis (Table \@ref(tab:mw_tab)), with a difference of approximately 4% and 6%, respectively. This is substantial evidence to propose that HiGam is a homodimer, as predicted by homology models (Fig. 9 B & C), even in the absence of solution. To further support this value, the sedimentation equilibrium analytical ultracentrifugation (seAUC) could be used as another non-destructive method of analysing the molecular weight of HiGam in solution `r Cite(refs, "Rhodes2009-uq")`.
+
+```{r mw-tab, include = TRUE}
+data.frame(
+  "HiGam" = c("His13-HiGam Monomer", "His13-HiGam Dimer", "His7-HiGam Monomer", "His7-HiGam Dimer"),
+  "ProtParam" = c("22491.54", "44983.08", "30626.50", "61253.00"),
+  "SDS-PAGE" = c(NA, NA, NA, NA),
+  "SEC" = c(NA, NA, (as.numeric(a280_mw)/2), a280_mw)
+) %>% 
+  knitr::kable(
+    caption = "Table of",
+    digits = 2,
+    col.names = c("HiGam",
+                  "ProtParam",
+                  "SDS-PAGE",
+                  "SEC")
+  ) %>%
+  collapse_rows(columns = 1) %>%
+  kable_styling(font_size = 15)
+```
 
 The size of the DNA binding footprint was determined by EMSA and SEC analysis are consistent with one another (calculations outlined in Fig. 6 & Fig. 8). Though, SEC analysis of Ku and DvGam should be performed for comparison, as this will help us understand which homology model is most appropriate. As DvGam has a central cavity twice the size of Ku `r Cite(refs, "Bhattacharyya2018-ok")`, we would expect its binding footprint to appear smaller than Ku.
 
