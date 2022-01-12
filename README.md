@@ -2,9 +2,9 @@
 [![Version](https://img.shields.io/badge/R-4.1.2-blue)](https://www.r-project.org/)
 
 ---
-title: Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by
+Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by
   a Bacterial Prophage Region
-author: "Y3877831"
+Y3877831
 ---
 
 ### Description, 50 words or so on what the project is
