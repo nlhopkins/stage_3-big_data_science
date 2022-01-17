@@ -22,7 +22,7 @@ Y3877831
 
 The output of `sessionInfo()` can be found in [Session Information](session_info.md).
 
-### Notes
+### Issues
 * If on Mac, you will need to download the Montserrat font for the `showtext` functions. [This](https://babichmorrowc.github.io/post/2019-10-11-google-fonts/) article explains how to do this.
 * Some plots are not interactive due to `plotly` being incompatible with `ggplot2`'s stat functions.
 
