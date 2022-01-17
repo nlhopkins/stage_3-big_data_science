@@ -42,8 +42,6 @@ library(kableExtra)
 library(showtext)
 # Load wordcountaddin. Counts words and characters in text in an R markdown document.
 library(wordcountaddin)
-
-li
 ```
 
 ```{r themes}
