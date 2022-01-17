@@ -50,6 +50,8 @@ font_add_google("Montserrat", "Montserrat")
 
 # turn on showtext
 showtext_auto()
+
+# custom theme for ggplots
 source("theme.R", local = knitr::knit_global())
 ```
 
@@ -72,9 +74,9 @@ pkgs <-
   RefManageR::ReadBib("bibliography/pkgs.bib", check = FALSE)
 ```
 ___
-# Introduction
+# Introduction 
 
-Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events `r Cite(refs, "DAdda_di_Fagagna2003-kb")`. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element `r Cite(refs, "Fuller2017-ex")` – meaning it can change its position within the genome and replicate by forming two replication forks `r Cite(refs, "Shapiro1979-gf")`. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam `r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`. MuB polymerises adjacent to the *E. coli* target site and associates with MuA.MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone `r Cite(refs, "Harshey2012-qe")`. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). 
+Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events `r Cite(refs, "DAdda_di_Fagagna2003-kb")`. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element `r Cite(refs, "Fuller2017-ex")` – meaning it can change its position within the genome and replicate by forming two replication forks `r Cite(refs, "Shapiro1979-gf")`. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam `r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`. MuB polymerises adjacent to the *E. coli* target site and associates with MuA. MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone `r Cite(refs, "Harshey2012-qe")`. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). 
 HGT is the transfer of foreign DNA between organisms and significantly contributes to the spread of antibiotic resistance and evolution in bacteria 
 `r Cite(refs, "Gyles2014-wy")`.
 
@@ -182,15 +184,17 @@ cdna <- pcr %>% # cDNA PCR data
 
 There are `r length(list.files("data/data-raw"))` files containing data obtained from the assays. These are read into R `r Cite(pkgs, "base")` and tidied using the `tidyverse` `r Cite(pkgs, c("tidyverse", "tidyverse2019"))` package.
 
-* EMSA
-  + EMSA Calibration
-* PCR
+* [PCR](#pcr)
   + PCR Calibration for cDNA
   + PCR Calibration for gDNA
-* SDS
+* [SDS](#sds)
   + SDS Calibration
   + SDS Standards
   + SDS Elution
+* [EMSA](#emsa)
+  + EMSA Calibration
+* [SEC](#sec)
+
   
 ___
 # Analysis 
@@ -234,7 +238,7 @@ blast_hi %>%
 write.csv(blast_hi, 'data/data-processed/blast_hi.csv')
 ```
 
-## Diagnostic PCR of the Mu Prophage Region in Haemophilus influenzae Genomic DNA and cDNA {.tabset}
+## Diagnostic PCR of the Mu Prophage Region in Haemophilus influenzae Genomic DNA and cDNA {.tabset #pcr}
 ```{r pcr-linear-models}
 # Linear regression models on the PCR calibration data. We can predict our PCR amplicon sizes based on these using y = mx+c.
 #gDNA
@@ -357,7 +361,7 @@ pcr_full %>%
 ```
 
 ___
-## Assessing the Solubility of Two Different Recombinant Escherichia coli HiGam  {.tabset}
+## Assessing the Solubility of Two Different Recombinant Escherichia coli HiGam  {.tabset #sds}
 Cell lysates of two His-tagged `r Cite(refs, "Malhotra2009-du")` E. coli HiGam proteins, His$_{13}$-HiGam and His$_7$-Im9-HiGam, were fractionated into soluble and insoluble protein `r Cite(refs, c("Grabski2009-em", "Malhotra2009-du"))`. They were then analysed by SDS-PAGE and direct Western blotting (Fig. \@ref(fig:sds-fig)) to detect His-tagged protein within the fractions. Fractions were consistent with their expected molecular weights `r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))` (Table \@ref(tab:sds-tab)). His$_7$-Im9-HiGam was determined to have the best solubility for overproducing HiGam.
 
 ### SDS-PAGE/Western Blot {-}
@@ -415,7 +419,7 @@ sds %>% select(-log, -gel_length, -distance) %>%
 
 
 ---
-## Analyse DNA-Binding Properties of HiGam in EMSA {.tabset}
+## Analyse DNA-Binding Properties of HiGam in EMSA {.tabset #emsa}
 ```{r emsa-prep}
 # Prepare the calibration data by calculating the Rf and log10(expected size)
 emsa_calibration <-
@@ -552,7 +556,7 @@ emsa %>%
 ```
 
 ___
-## Size Exclusion Chromatography (SEC) {.tabset}
+## Size Exclusion Chromatography (SEC) {.tabset #sec}
 ```{r sec-standards}
 # Prepare the standards data
 sec_standards <- standards %>%
@@ -743,7 +747,7 @@ knitr::include_graphics("images/ku.png")
 
 Alignment in BLASTp `r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))` showed no significant similarity between Human Ku with H. influenzae, nor MuGam. However, *D. vulgaris* Mu shared a similarity of ~27% with both *H. influenzae* and MuPhage (Table \@ref(tab:blast-dv)) and Fig. \@ref(fig:align-dv)). This information would advocate for DvGam as a more appropriate than Ku for developing a homology model of the crystal structure of HiGam.
 
-### {.tabset .unumbered .unlisted}
+### {.tabset -}
 #### BLAST Alignment {-}
 ```{r blast-dv, include = TRUE, out.width = "80%"}
 # Create a dataframe for the output of the BLAST alignments
