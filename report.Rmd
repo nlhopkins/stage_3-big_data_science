@@ -27,32 +27,21 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r pkgs}
-# Load the tidyverse. Functions are used for tidying data and creating plots via ggplot2.
-library(tidyverse)
-# Load plotly. Plotly converts static ggplot to an interactive plot.
-library(plotly)
-# Load ggpubr. Combines multiple ggplots into a single plot.
-library(ggpubr)
-# Load RefManageR. Provides tools for importing and working with bibliographic references.
-library(RefManageR)
-# Load kableExtra. Table generation.
-library(kableExtra)
-# Load showtext. Allows use of Google fonts in ggplots.
-library(showtext)
-# Load wordcountaddin. Counts words and characters in text in an R markdown document.
-library(wordcountaddin)
+```{r load-pkgs}
+library(tidyverse) # Load the tidyverse. Functions are used for tidying data and creating plots via ggplot2.
+library(plotly) # Load plotly. Plotly converts static ggplot to an interactive plot.
+library(ggpubr) # Load ggpubr. Combines multiple ggplots into a single plot.
+library(RefManageR) # Load RefManageR. Provides tools for importing and working with bibliographic references.
+library(kableExtra) # Load kableExtra. Table generation.
+library(showtext) # Load showtext. Allows use of Google fonts in ggplots.
+library(wordcountaddin) # Load wordcountaddin. Counts words and characters in text in an R markdown document.
 ```
 
 ```{r themes}
-# Importing custom themes and fonts.
-font_add_google("Montserrat", "Montserrat")
+font_add_google("Montserrat", "Montserrat") # Importing custom fonts for plots.
+showtext_auto() # Turn on showtext to allow use of custom fonts
 
-# turn on showtext
-showtext_auto()
-
-# custom theme for ggplots
-source("theme.R", local = knitr::knit_global())
+source("theme.R", local = knitr::knit_global()) # custom theme for ggplots
 ```
 
 ```{r import-bibliography}
@@ -67,6 +56,7 @@ RefManageR::BibOptions(
   longnamesfirst = FALSE,
   max.names = 2
 )
+
 # Read in references for packages and literature/tools.
 refs <-
   RefManageR::ReadBib("bibliography/refs.bib", check = FALSE)
@@ -76,8 +66,7 @@ pkgs <-
 ___
 # Introduction 
 
-Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events^`r Cite(refs, "DAdda_di_Fagagna2003-kb")`^. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element^`r Cite(refs, "Fuller2017-ex")`^ – meaning it can change its position within the genome and replicate by forming two replication forks^`r Cite(refs, "Shapiro1979-gf")`^. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam^`r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`^. MuB polymerises adjacent to the *E. coli* target site and associates with MuA. MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone^`r Cite(refs, "Harshey2012-qe")`^. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). 
-HGT is the transfer of foreign DNA between organisms and significantly contributes to the spread of antibiotic resistance and evolution in bacteria^`r Cite(refs, "Gyles2014-wy")`^.
+Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events^`r Cite(refs, "DAdda_di_Fagagna2003-kb")`^. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element^`r Cite(refs, "Fuller2017-ex")`^ – meaning it can change its position within the genome and replicate by forming two replication forks^`r Cite(refs, "Shapiro1979-gf")`^. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam^`r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`^. MuB polymerises adjacent to the *E. coli* target site and associates with MuA. MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone^`r Cite(refs, "Harshey2012-qe")`^. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). HGT is the transfer of foreign DNA between organisms and significantly contributes to the spread of antibiotic resistance and evolution in bacteria^`r Cite(refs, "Gyles2014-wy")`^.
 
 ```{r mu-fig, out.width = "80%", fig.cap = "Replicative transposition of Mu phage in E. coli showing the following structures: the phage genome (green), the transposase binding sites (red & blue), MuA (yellow), the transposition target (black), and the E. coli genome (grey). Adapted from Fuller & Rice.", include = TRUE}
 
@@ -88,7 +77,7 @@ MuGam enables natural competence in *E. coli* and is therefore a putative agent 
 
 ___
 # Requirements
-Required software and packages are outlined in the [README](README.md).
+Required software and packages are outlined in the [README](README.html).
 
 ___
 # The Data
@@ -103,23 +92,23 @@ source("functions/sec_elution.R", local = knitr::knit_global()) # Extracting elu
 ```
 
 ```{r data-import}
-# Source raw data files and tidy heading names.
+# Source raw data files and tidy heading names using the janitor::clean_names().
 # Load the PCR data
-pcr <- read.csv("data/data-raw/pcr.csv", header = TRUE) %>%
+pcr <- read.csv("data/data-raw/pcr_results.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the PCR calibration data for the gDNA library
 gdna_calibration <-
-  read.csv("data/data-raw/pcr_gdna_calibration.csv", header = TRUE) %>%
+  read.csv("data/data-raw/pcr_calibration_gdna.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the PCR calibration data for the cDNA library
 cdna_calibration <-
-  read.csv("data/data-raw/pcr_cdna_calibration.csv", header = TRUE) %>%
+  read.csv("data/data-raw/pcr_calibration_cdna.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the EMSA data
-emsa <- read.csv("data/data-raw/emsa.csv", header = TRUE) %>%
+emsa <- read.csv("data/data-raw/emsa_results.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the EMSA calibration data
@@ -134,12 +123,12 @@ standards <-
 
 # Load the SEC data
 sec <-
-  read.csv("data/data-raw/sec_im9higam.csv", header = TRUE) %>%
+  read.csv("data/data-raw/sec_results.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the SDS Paage data
 sds <-
-  read.csv("data/data-raw/sds.csv", header = TRUE) %>%
+  read.csv("data/data-raw/sds_results.csv", header = TRUE) %>%
   janitor::clean_names()
 
 # Load the SDS Calibration data
@@ -148,61 +137,19 @@ sds_calibration <-
   janitor::clean_names()
 ```
 
-```{r data-tidying}
-# Prepare data by tidying where neccessary.
-# Rename the proteins and pivot them
-standards <- standards %>%
-  rename(
-    c(
-      "Ferritin" = curve_ferritin,
-      "IgG" = curve_ig_g,
-      "Myoglobin" = curve_myoglobin,
-      "Ovalbumin" = curve_ovalbumin,
-      "Thyroglobulin" = curve_thyroglobulin,
-      "Transferrin" = curve_transferrin,
-      "Vitamin B12" = curve_vitamin_b12
-    )
-  ) %>%
-  pivot_longer(cols = !c(x, vol),
-               names_to = "protein",
-               values_to = "absorbance_units")
+There are `r length(list.files("data/data-raw"))` files containing data obtained from the assays. These are read into R^`r Cite(pkgs, "base")`^ and tidied using the `tidyverse`^`r Cite(pkgs, c("tidyverse", "tidyverse2019"))`^ package.
 
-# Pivot proteins
-sec <- sec %>%
-  pivot_longer(cols = starts_with("a"),
-               names_to = "protein",
-               values_to = "absorbance")
-
-# Separate the PCR data set by DNA library for analysis
-gdna <- pcr %>% # gDNA PCR data
-  filter(library == "gDNA")
-
-cdna <- pcr %>% # cDNA PCR data
-  filter(library == "cDNA")
-```
-
-There are `r length(list.files("data/data-raw"))` files containing data obtained from the assays. These are read into R^`r Cite(pkgs, "base")`^ and tidied using the `tidyverse` `r Cite(pkgs, c("tidyverse", "tidyverse2019"))` package.
-
-[PCR](#pcr)
-  * PCR Results
-  * PCR Calibration for cDNA
-  * PCR Calibration for gDNA
-[SDS](#sds)
-  * SDS Calibration
-  * SDS Results
-[EMSA](#emsa)
-  * EMSA Results
-  * EMSA Calibration
-[SEC](#sec)
-  * SEC Standards
-  * SEC Results 
+[PCR](#pcr): `r list.files("data/data-raw", pattern = "pcr*")`\
+[SDS](#sds): `r list.files("data/data-raw", pattern = "sds*")`\
+[EMSA](#emsa): `r list.files("data/data-raw", pattern = "emsa*")`\
+[SEC](#sec): `r list.files("data/data-raw", pattern = "sec*")`\
 
 ___
 # Analysis 
-Analyses of data is executed in R^`r Cite(pkgs, "base")`^. Plots are created with `ggplot2` `r Cite(pkgs, "ggplot2")` and, where applicable, are made interactive with `plotly` `r Cite(pkgs, c("plotly", "plotly2020"))`.
+Analyses of data is executed in R^`r Cite(pkgs, "base")`^. Plots are created with`ggplot2`^`r Cite(pkgs, "ggplot2")`^ and combined with `ggpubr`^`r Cite(pkgs, "ggpubr")`^, with aesthetics defined by [theme.R](theme.R) and fonts from `showtext`^`r Cite(pkgs, "showtext")`^. Tables are created using `kableExtra`^`r Cite(pkgs, "kableExtra")`^. Where applicable, are made interactive with `plotly`^`r Cite(pkgs, c("plotly", "plotly2020"))`^.
 
 ## Identification & Alignment of MuGam Prophage Homologues {.tabset}
-BLASTp^`r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))`^ was used to identify homologues of MuGam within Escherichia coli and Haemophilus influenzae. Significant sequences were aligned in COBALT^`r Cite(refs, "Papadopoulos2007-zl")`^ and ClustalOmega^`r Cite(refs, "Sievers2011-xs")`^ to yield the optimised alignment between MuGam, E. coli Gam and H. influenzae Gam (Fig. \@ref(fig:align-hi)). Prophage regions of H. influenzae were interrogated in PHASTER^`r Cite(pkgs, "Arndt2016-bg")`^, identifying two prophage regions, one of which was intact and derived from Enterobacteria phage Mu and contained homologues of MuA, MuB, and MuGam (Table \@ref(tab:blast-hi)). The H. influenzae homologues are potentially polycistronic, as they are oriented in the same way as Mu phage
+BLASTp^`r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))`^ was used to identify homologues of MuGam within Escherichia coli and Haemophilus influenzae. Significant sequences were aligned in COBALT^`r Cite(refs, "Papadopoulos2007-zl")`^ and ClustalOmega^`r Cite(refs, "Sievers2011-xs")`^ to yield the optimised alignment between MuGam, E. coli Gam and H. influenzae Gam (Fig. \@ref(fig:align-hi)). Prophage regions of H. influenzae were interrogated in PHASTER ^`r Cite(refs, "Arndt2016-bg")`^, identifying two prophage regions, one of which was intact and derived from Enterobacteria phage Mu and contained homologues of MuA, MuB, and MuGam (Table \@ref(tab:blast-hi)). The H. influenzae homologues are potentially polycistronic, as they are oriented in the same way as Mu phage
 
 ### ClustalOmega Alignment) {-}
 ```{r align-hi, out.width = "80%", fig.cap = " Sequences with low E values and a percent identity of >50% were aligned in COBALT and ClustalOmega. Figure shows the ClustalOmega multiple alignment of MuGam (NP_050614.1), *Escherichia coli O157:H7 str. Sakai* (NP_312979.1), and *Haemophilus influenzae Rd KW20* (NP_439634.1). ‘*’ = residues in that column are identical in all aligned sequences, ‘:’ = conserved substitution has been observed,’.’ = semi-conserved substitutions are observed. RED = small, BLUE = acidic, MAGENTA = basic, GREEN = Hydroxyl + sulfhydryl + amine + G, GREY = Unusual amino/imino acids etc.", include = TRUE}
@@ -225,6 +172,7 @@ blast_hi <- data.frame(
   "percent_identity" = c("39.61", "46.44", "60.53")
 )
 
+# Create a Kable table
 blast_hi %>%
   knitr::kable(
     caption = " Mu homologues in H. influenzae were aligned in BLAST, identifying HiA, HiB, and HiGam. Their E values and percent identity are consistent with them being homologues of Mu.",
@@ -236,12 +184,22 @@ blast_hi %>%
   kable_styling(font_size = 15)
 
 # Save processed Blast data
-write.csv(blast_hi, 'data/data-processed/blast_hi.csv')
+write.csv(blast_hi, 'data/data-processed/blast_hi_results.csv')
 ```
 
 ## Diagnostic PCR of the Mu Prophage Region in Haemophilus influenzae Genomic DNA and cDNA {.tabset #pcr}
+
+```{r pcr-tidy}
+# Filter the PCR data set by DNA library for analysis
+gdna <- pcr %>% # gDNA PCR data
+  filter(library == "gDNA")
+
+cdna <- pcr %>% # cDNA PCR data
+  filter(library == "cDNA")
+```
+
 ```{r pcr-linear-models}
-# Linear regression models on the PCR calibration data. We can predict our PCR amplicon sizes based on these using y = mx+c.
+# Linear regression models on the PCR calibration data. We can predict our PCR amplicon sizes based on these using the linear regression equeation y = mx+c.
 #gDNA
 gdna_mod <- lm(data = gdna_calibration, log ~ rf)
 
@@ -250,7 +208,7 @@ cdna_mod <- lm(data = cdna_calibration, log ~ rf)
 ```
 
 ```{r pcr-preperation}
-# Calculate the relative front (Rf), log = (y=mx+c), actual amplicon size, and percentage difference to the predicted size.
+# Calculate the relative front (Rf), log = (y=mx+c), actual amplicon size, and percentage difference to the predicted size. Mutate columns to contain these new values.
 
 # gDNA
 gdna <- gdna %>%
@@ -280,13 +238,13 @@ cdna <- cdna %>%
 pcr_full <- full_join(gdna, cdna, by = NULL)
 
 # Save processed PCR data
-write.csv(pcr_full, 'data/data-processed/pcr.csv')
+write.csv(pcr_full, 'data/data-processed/pcr_results.csv')
 ```
 Diagnostic PCR was used to amplify the *H. influenzae homologues* and test for their transcription relative to the Genomic DNA (gDNA) control. Amplicon sizes were established with equation \@ref(eq:log), using DNA ladder molecularweight (MW) standards. Results identified the transcription of HiA, HiB, HiGam, HiA-HiB and HiB-HiGam in *H. influenzae* (Fig. \@ref(fig:pcr-fig)).
 
 \begin{equation}
 \Large \color{#8D9FCA} y \color{#5a5a5a} = \color{#E789C2} m \color{#66c2a4} x \color{#5a5a5a} + \color{#FFD82F} c\\
-\small \text{Where } \color{#8D9FCA} y = \text{log(DNA MW in bp), } \color{#E789C2} m = \text{gradient, } \color{#66c2a4} x = \text{Rf, and } \color{#FFD82F} c = \text{y-intercept}(\#eq:log)
+\small \color{#8D9FCA} y = \text{log(DNA MW in bp), } \color{#E789C2} m = \text{gradient, } \color{#66c2a4} x = \text{Rf, and } \color{#FFD82F} c = \text{y-intercept}(\#eq:log)
 \end{equation}
 
 ### PCR Expressed Amplicons {-}
@@ -311,7 +269,7 @@ pcr_plot <- pcr_full %>%
       round(actual_size)
     )
   )) + geom_col(position = "dodge") +
-  geom_hline(yintercept = 0, size = 0.25) +
+  geom_hline(yintercept = 0, size = 0.25) + 
   mytheme() +
   scale_fill_brewer(name = "DNA Library",
                     labels = c("cDNA", "gDNA"),
@@ -319,6 +277,8 @@ pcr_plot <- pcr_full %>%
   labs(y = "Percentage Difference to Expected Size",
        x = "Amplicon")
 
+
+# Save processed plot
 ggsave(
   "figures/pcr_plot.pdf",
   plot = pcr_plot,
@@ -329,6 +289,7 @@ ggsave(
 
 # Make this interactive
 ggplotly(pcr_plot, tooltip = c("text"), align = "center")
+
 ```
 
 ### PCR {-}
@@ -341,7 +302,6 @@ knitr::include_graphics("images/pcr.png")
 ```{r pcr-tab, include = TRUE}
 # Kable table of the full PCR dataset with the calculated values.
 pcr_full %>%
-  select(-primer, -gel_length) %>%
   knitr::kable(
     caption = "The actual amplicon sizes were calculated using the linear regression equation \\@ref(eq:log) acquired by linear regression analysis of the PCR ladder bands. Size Difference compares the expected and actual amplicon sizes.",
     booktabs = T,
@@ -349,15 +309,17 @@ pcr_full %>%
     col.names = c(
       "Library",
       "Amplicon",
+      "Primer",
       "Distance (cm)",
       "Expected Size (bp)",
+      "Gel Length (cm)",
       "Relative Front (Rf)",
       "Log(Rf)",
       "Actual Size (bp)",
       "Size Difference (%)"
     )
   ) %>%
-  collapse_rows(columns = 1) %>%
+  collapse_rows(columns = c(1, 6)) %>%
   kable_styling(font_size = 15, position = "center")
 ```
 
@@ -390,7 +352,7 @@ sds_mod <- lm(sds_calibration$log ~ sds_calibration$rf)
 ```
 
 ```{r sds-tab, include = TRUE}
-# Calculate the relative front (Rf), log = y=mx+c, 10^log = actual weight, and percentage difference to the predicted weight for the samples.
+# Calculate the relative front (Rf), log = y=mx+c, 10^log = actual weight, and percentage difference to the predicted weight for the samples. Mutate columns to contain these new values.
 sds <- sds %>%
   mutate(
     rf = ((gel_length - distance) / gel_length),
@@ -400,7 +362,7 @@ sds <- sds %>%
   )
 
 # Kable table of the SDS data with calculated values.
-sds %>% select(-log, -gel_length, -distance) %>%
+sds %>%
   knitr::kable(
     caption = "Molecular weight was determined using Rf of bands and the linear regression equation acquired by the linear regression analysis of the MW ladder bands. Expected weights were obtained by ExPASy ProtParam.",
     booktabs = T,
@@ -408,20 +370,26 @@ sds %>% select(-log, -gel_length, -distance) %>%
     col.names = c(
       "Column",
       "Sample",
+      "Distance (cm)",
       "Expected Weight (Da)",
+      "Gel Length (cm)",
       "Relative Front (Rf)",
+      "log(Relative Front (Rf))",
       "Actual Weight (Da)",
       "Size Difference (%)"
     )
   ) %>%
-  collapse_rows(columns = 3) %>%
+  collapse_rows(columns = c(3, 4, 5)) %>%
   kable_styling(font_size = 15, position = "center")
+
+# Save processed table
+write.csv(sds, 'data/data-processed/sds_results.csv')
 ```
 
 
 ---
 ## Analyse DNA-Binding Properties of HiGam in EMSA {.tabset #emsa}
-```{r emsa-prep}
+```{r emsa-tidy}
 # Prepare the calibration data by calculating the Rf and log10(expected size)
 emsa_calibration <-
   emsa_calibration %>% mutate(log = log10(expected_size),
@@ -438,7 +406,7 @@ emsa <- emsa %>%
   mutate(residuals = rf - predict(NLS(emsa)))
 
 # Save processed data
-write.csv (emsa, 'data/data-processed/emsa.csv')
+write.csv(emsa, 'data/data-processed/emsa_results.csv')
 ```
 
 ```{r kd}
@@ -450,12 +418,12 @@ kd <- summary(NLS(emsa))$coefficients[2, 1]
 # Linear regression of the EMSA calibration data rf ~ log. Coefficients will be used to predict the size of HiGam + DNA.
 emsa_lm <- lm(emsa_calibration$log ~ emsa_calibration$rf)
 
-# Predict footpring using predicted HiGam size (y=mx+c), the avg weight of 500bp DNA (330000), and the weight of dimeric HiGam (30626.5 / 2).
 emsa <- emsa %>%
   mutate(log = 1000 * ((rf * as.numeric(
     emsa_lm$coefficients[2]
   )) + as.numeric(emsa_lm$coefficients[1])))
 
+# Predict footprint using predicted HiGam size (y=mx+c), the avg weight of 500bp DNA (330000), and the weight of dimeric HiGam (30626.5 / 2).
 emsa_footprint <-
   (500 / abs(((
     max(emsa$log) - 330000
@@ -473,6 +441,7 @@ In R^`r Cite(pkgs, "base")`^, NLS was used to predict the (K~d~), and a linear m
 ___
 ### EMSA Analysis {-}
 ```{r emsa-fig, include = TRUE, fig.cap = "The binding affinity (equilibrium dissociation constant, K~d~) was estimated by nonlinear regression analysis (NLS) of EMSA using the Langmuir Binding Isotherm."}
+# ggplot2 point plot of the EMSA data. Conc ~ Rf. Intercept is calculated using the emsa_pred_intercept function.
 emsa_plot <- emsa %>%
   ggplot(aes(x = conc, y = rf)) +
   geom_point(shape = 20,
@@ -518,8 +487,8 @@ emsa_res_plot <- emsa %>%
     name = "Residual (a.U.)"
   ) + mytheme()
 
-
-emsa_full <- ggarrange(
+# Merge the two EMSA plots into one figure
+ggarrange(
   emsa_plot,
   emsa_res_plot,
   nrow = 2,
@@ -527,11 +496,9 @@ emsa_full <- ggarrange(
   widths = c(2, 1 / 2)
 )
 
-emsa_full
-
+# Save plot
 ggsave(
   "figures/emsa_plot.pdf",
-  plot = emsa_full,
   height = 15,
   width = 20,
   unit = "cm"
@@ -558,6 +525,31 @@ emsa %>%
 
 ___
 ## Size Exclusion Chromatography (SEC) {.tabset #sec}
+
+```{r sec-tidy}
+standards <- standards %>%
+  rename(
+    c(
+      "Ferritin" = curve_ferritin,
+      "IgG" = curve_ig_g,
+      "Myoglobin" = curve_myoglobin,
+      "Ovalbumin" = curve_ovalbumin,
+      "Thyroglobulin" = curve_thyroglobulin,
+      "Transferrin" = curve_transferrin,
+      "Vitamin B12" = curve_vitamin_b12
+    )
+  ) %>%
+  pivot_longer(cols = !c(x, vol),
+               names_to = "protein",
+               values_to = "absorbance_units")
+
+# Pivot proteins
+sec <- sec %>%
+  pivot_longer(cols = starts_with("a"),
+               names_to = "protein",
+               values_to = "absorbance")
+```
+
 ```{r sec-standards}
 # Prepare the standards data
 sec_standards <- standards %>%
@@ -682,7 +674,7 @@ ggsave(
 
 ### SEC Calibration Plot {-}
 ```{r sec-calib-fig, include = TRUE, fig.cap = "Plot of the elution volume vs log(molecular weight) for the 7 standard proteins (Fig \\@ref(sec-std-fig))."}
-# Plot the standards elution against MW and predict the intercept using sec_pred_intercept function
+# Plot the standards elution against MW and predict the intercept using sec_pred_intercept function.
 sec_std_plot <- sec_standards %>%
   ggplot(mapping = aes(y = vol, x = logmw)) +
   geom_point() +
@@ -731,14 +723,13 @@ sec %>%
   scroll_box(height = "300px")
 
 # Save processed data
-write.csv(sec, 'data/data-processed/sec.csv')
+write.csv(sec, 'data/data-processed/sec_results.csv')
 ```
 
-# {-}
 # Discussion
 Mu is a phage of *E. coli*, which is an Enterobacteria. So, we looked to identify sequence homologues of MuGam in other species. Similarity to Mu was identified in a range of bacteria, including *Salmonella*, *Shigella*, *E. coli sakai* and *Haemophilus influenzae*. *H. influenzae* was selected for analysis as it is a naturally competent bacterial strain. In Mu, the P~e~ RNA promoter^`r Cite(refs, "Stoddard1989-xc")`^ upstream of MuA, MuB and MuGam enables operon-like polycistronic transcription. Hence, the same would be expected of Mu homologues (designated HiA, HiB, and HiGam). We found that *H. influenzae* contained an intact plasmid with sequences and orientations consistent with being homologues of MuA, MuB, and MuGam (Fig. \@ref(fig:align-hi), \@ref(fig:maps), & Table \@ref(tab:blast-hi)). The percent identities for HiA and HiB were both <50%, which raises concerns as to whether the proteins will be functional. Their activity could be analysed by reconstituting a transposon in vitro using recombinant HiA and HiB^`r Cite(refs, "Mizuuchi1983-qq")`^.
 
-## Oligomeric State & Binding Preference of HiGam
+## Oligomeric State & Binding Preference of HiGam {.tabset}
 The structure of HiGam has previously modelled on eukaryotic Ku^`r Cite(refs, "DAdda_di_Fagagna2003-kb")`^, as shown in Fig. \@ref(fig:ku). However, a homologue of MuGam from *Desulfovibrio vulgaris* (DvGam) is known to have a structure much like Ku and is the same solution states as both Ku and MuGam. The central cavity of the *D. vulgaris* Gam model^`r Cite(refs, "Bhattacharyya2018-ok")`^, however, is twice as wide as that in Ku. This could potentially allow binding to two helices of DNA, aiding in the formation of two replication forks typical of transposable events (see Fig. \@ref(fig:mu-fig)).
 
 ```{r ku, include = TRUE, out.width = "80%", fig.cap = "A. Structural model of *Desulfovibrio vulgaris* Gam Homologue. B. Structural model of *Desulfovibrio vulgaris* Gam Dimer C. Model of HiGam-DNA complex based on homology with Ku70/Ku80 heterodimer D. Structure of the eukaryotic Ku-DNA complex."}
@@ -748,8 +739,7 @@ knitr::include_graphics("images/ku.png")
 
 Alignment in BLASTp^`r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))`^ showed no significant similarity between Human Ku with H. influenzae, nor MuGam. However, *D. vulgaris* Mu shared a similarity of ~27% with both *H. influenzae* and MuPhage (Table \@ref(tab:blast-dv)) and Fig. \@ref(fig:align-dv)). This information would advocate for DvGam as a more appropriate than Ku for developing a homology model of the crystal structure of HiGam.
 
-### {.tabset -}
-#### BLAST Alignment {-}
+### BLAST Alignment {-}
 ```{r blast-dv, include = TRUE, out.width = "80%"}
 # Create a dataframe for the output of the BLAST alignments
 blast_mu <- data.frame(
@@ -775,12 +765,12 @@ blast_mu %>%
 write.csv(blast_mu, 'data/data-processed/blast_mu.csv')
 ```
 
-#### ClustalOmega Alignment {-}
+### ClustalOmega Alignment {-}
 ```{r align-dv, out.width = "100%", fig.cap = "ClustalOmega multiple alignment of *Desulfovibrio vulgaris* (WP_010938435), MuPhage (NP_050614.1), and *Haemophilus influenzae* (NP_439634.1).  ‘*’ = residues in that column are identical in all aligned sequences, ‘:’ = conserved substitution has been observed,’.’ = semi-conserved substitutions are observed. RED = small, BLUE = acidic, MAGENTA = basic, GREEN = Hydroxyl + sulfhydryl + amine + G, GREY = Unusual amino/imino acids etc.", include = TRUE}
 knitr::include_graphics("images/align_dv.png")
 ```
 
-### {-}
+### {.unnumbered .unlisted}
 MuGam non-specifically binds to double-stranded linear DNA^`r Cite(refs, "Bhattacharyya2018-ok")`^, with an estimated K~d~ of 1.2 x 10^-8^M. MuGam is a homodimer that forms a ring-like crystal structure, preventing it from binding to circular DNA (Fig. \@ref(fig:ring-fig)). The binding ability of HiGam was tested with an electrophoretic mobility shift assay (EMSA). Historically, MuGam has poor solubility^`r Cite(refs, "Abraham1990-ec")`^. Since we’d expect the same from HiGam, the solubility of fusion proteins for EMSA analysis was compared (Fig. 5 & Table 4). His~13~-HiGam exhibited poor solubility, whereas His~7~-Im9-HiGam had improved levels of solubility. The poor solubility of HiGam lacking Im9 creates speculation as to whether translated HiGam will be soluble in the bacterium. As predicted, Im9-HiGam bound preferentially to linear DNA. Analysis non-linear regression analysis using the Langmuir Isotherm showed that Im9-HiGam bound to linear DNA with an estimated K~d~ (affinity) of approximately `r signif(kd, digits = 2)`M. Both the KD of MuGam and HiGam are considered high. This value alone isn’t significant – fluorescence anisotropy (FA) could be used to improve the accuracy of the K~d~^`r Cite(refs, "Bhattacharyya2018-ok")`^.
 
 ```{r ring-fig, include = TRUE, out.width = "80%", fig.cap = "Diagrams shows how the ring structure of homodimer MuGam binds to linear DNA. MuGam ‘slides’ onto linear DNA. The ring structure is closed, so MuGam cannot bind to circular DNA."}
@@ -826,7 +816,7 @@ mw %>% knitr::kable(
   kable_styling(font_size = 15)
 
 # Save processed data
-write.csv(mw, 'data/data-processed/mw.csv')
+write.csv(mw, 'data/data-processed/mw_comparison.csv')
 ```
 
 The molecular weight of Im9-HiGam determined by SEC is consistent with those given by ExPASy ProtParam^`r Cite(refs, c("Gasteiger2005-rh", "Gasteiger2003-ks"))`^ and the SDS-PAGE analysis (Table \@ref(tab:mw-tab)). This is substantial evidence to propose that HiGam is a homodimer, as predicted by homology models (Fig. \@ref(fig:ku) B & C), even in the absence of solution. To further support this value, the sedimentation equilibrium analytical ultracentrifugation (seAUC) could be used as another non-destructive method of analysing the molecular weight of HiGam in solution^`r Cite(refs, "Rhodes2009-uq")`^.
@@ -861,23 +851,21 @@ The size of the DNA binding footprint was determined by EMSA and SEC analysis ar
 We have established that *Haemophilus influenzae* contains a prophage region derivative of Mu, containing a homologue of MuGam. In these assays, HiGam demonstrated homology to MuGam: HiGam too binds to linear DNA with a strong affinity, and evidence points to it being a dimer, even in the absence of solution. However, there are a significant number of sequence truncations to imply that HiGam may not be translated or functional in vivo. Further assays, as mentioned, will need to confirm this. Though, even if this were not the case, we would still need to establish whether functional HiGam has an impact on the level of horizontal gene transfer within *H. influenzae.*
 
 ___
-**This Document:** 
-`r word_count("report.Rmd")`\
-**README:** 
-`r word_count("README.md")`\
-**Total:** 
-`r word_count("report.Rmd") + word_count("README.md")`\
+# Wordcount
+Word count calculated using the `wordcountaddin`^`r Cite(pkgs, "wordcountaddin")`^ package, downloaded from [Github]("https://github.com/benmarwick") with the `devtools`^`r Cite(pkgs, "devtools")`^ package.\
+**This Document:** `r word_count("report.Rmd")`\
+**README:** `r word_count("README.md")`\
+**Total:** `r word_count("report.Rmd") + word_count("README.md")`\
 
 ___
-Report made with `rmarkdown` 
-`r Cite(pkgs, c("rmarkdown","rmarkdown2018", "rmarkdown2020"))`, 
-`RefManageR`
-`r Cite(pkgs, "RefManageR")`.\
+Report made with `rmarkdown`^`r Cite(pkgs, c("rmarkdown","rmarkdown2018", "rmarkdown2020"))`^.
 
 Theme is *Minty* by [Bootswatch](https://bootswatch.com/minty/).
 
 ___
 # Bibliography {.tabset}
+Citations made with the `RefManageR`^`r Cite(pkgs, "RefManageR")`^ package.
+
 ## References {-}
 ```{r refs-bib, include = TRUE, results =  "asis"}
 RefManageR::PrintBibliography(refs)
