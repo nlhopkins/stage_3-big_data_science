@@ -4,7 +4,7 @@ title: Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded 
 author: "Y3877831"
 output:
   bookdown::html_document2:
-    css: css/bootstrap-minty.css
+    css: css/bootswatch-minty.css
     toc: yes
     depth: 2
     toc_float:
@@ -68,7 +68,7 @@ ___
 
 Double strand breaks (DSBs) are a form of DNA damage that results in the loss of bases on both strands of the DNA helix. They are commonly repaired by the non-homologous end-joining (NHEJ) pathway, which requires the protein Ku. Ku is a heterodimer of Ku70/Ku80 subunits. It identifies and binds to DSBs prior to NHEJ, and takes part in some transposition events^`r Cite(refs, "DAdda_di_Fagagna2003-kb")`^. Homologues of Ku have been found in many bacteria. The most well- known homologue of Ku is the Gam protein of the Mu bacteriophage. Mu is a temperate bacteriophage of Enterobacteria, particularly *Escherichia coli*. In bacteria, Mu acts as a transposable element^`r Cite(refs, "Fuller2017-ex")`^ – meaning it can change its position within the genome and replicate by forming two replication forks^`r Cite(refs, "Shapiro1979-gf")`^. The Mu transposon involves 3 proteins: MuA, MuB, and MuGam^`r Cite(refs, c("DAdda_di_Fagagna2003-kb", "Fuller2017-ex"))`^. MuB polymerises adjacent to the *E. coli* target site and associates with MuA. MuA binds specific target sites and synapses them together to form the transposon. MuA remains bound until it is disassembled by the ATP-ClpX chaperone^`r Cite(refs, "Harshey2012-qe")`^. Meanwhile, MuGam binds to excised Mu phage DNA and protects it from digestion by host nucleases. Transposition events promote the uptake of foreign linear DNA: this function is known as natural competence and is linked to horizontal gene transfer (HGT). HGT is the transfer of foreign DNA between organisms and significantly contributes to the spread of antibiotic resistance and evolution in bacteria^`r Cite(refs, "Gyles2014-wy")`^.
 
-```{r mu-fig, out.width = "80%", fig.cap = "Replicative transposition of Mu phage in E. coli showing the following structures: the phage genome (green), the transposase binding sites (red & blue), MuA (yellow), the transposition target (black), and the E. coli genome (grey). Adapted from Fuller & Rice.", include = TRUE}
+```{r mu-fig, out.width = "80%", fig.cap = "Replicative transposition of Mu phage in E. coli showing the following structures: the phage genome (green), the transposase binding sites (red & blue), MuA (yellow), the transposition target (black), and the E. coli genome (grey). Image adapted from Fuller & Rice.", include = TRUE}
 
 knitr::include_graphics("images/mu_transposition.jpg")
 ```
@@ -146,7 +146,7 @@ There are `r length(list.files("data/data-raw"))` files containing data obtained
 
 ___
 # Analysis 
-Analyses of data is executed in R^`r Cite(pkgs, "base")`^. Plots are created with`ggplot2`^`r Cite(pkgs, "ggplot2")`^ and combined with `ggpubr`^`r Cite(pkgs, "ggpubr")`^, with aesthetics defined by [theme.R](theme.R) and fonts from `showtext`^`r Cite(pkgs, "showtext")`^. Tables are created using `kableExtra`^`r Cite(pkgs, "kableExtra")`^. Where applicable, are made interactive with `plotly`^`r Cite(pkgs, c("plotly", "plotly2020"))`^.
+Analyses of data is executed in R^`r Cite(pkgs, "base")`^. Plots are created with`ggplot2`^`r Cite(pkgs, "ggplot2")`^ and combined with `ggpubr`^`r Cite(pkgs, "ggpubr")`^, with aesthetics defined by [theme.R](theme.R) and fonts from `showtext`^`r Cite(pkgs, "showtext")`^. Tables are created using `kableExtra`^`r Cite(pkgs, "kableExtra")`^. Where applicable, plots are made interactive with `plotly`^`r Cite(pkgs, c("plotly", "plotly2020"))`^.
 
 ## Identification & Alignment of MuGam Prophage Homologues {.tabset}
 BLASTp^`r Cite (refs, c("Abdeldaim2013-le", "Johnson2008-rl", "McGinnis2004-qg"))`^ was used to identify homologues of MuGam within Escherichia coli and Haemophilus influenzae. Significant sequences were aligned in COBALT^`r Cite(refs, "Papadopoulos2007-zl")`^ and ClustalOmega^`r Cite(refs, "Sievers2011-xs")`^ to yield the optimised alignment between MuGam, E. coli Gam and H. influenzae Gam (Fig. \@ref(fig:align-hi)). Prophage regions of H. influenzae were interrogated in PHASTER ^`r Cite(refs, "Arndt2016-bg")`^, identifying two prophage regions, one of which was intact and derived from Enterobacteria phage Mu and contained homologues of MuA, MuB, and MuGam (Table \@ref(tab:blast-hi)). The H. influenzae homologues are potentially polycistronic, as they are oriented in the same way as Mu phage
@@ -858,7 +858,7 @@ Word count calculated using the `wordcountaddin`^`r Cite(pkgs, "wordcountaddin")
 **Total:** `r word_count("report.Rmd") + word_count("README.md")`\
 
 ___
-Report made with `rmarkdown`^`r Cite(pkgs, c("rmarkdown","rmarkdown2018", "rmarkdown2020"))`^.
+Report made with `rmarkdown`^`r Cite(pkgs, c("rmarkdown","rmarkdown2018", "rmarkdown2020"))`^ to fulfill the requirements of the University of York, Data Science strand of BIO00058M by Emma Rand^`r Cite(refs, "emma_rand_2021_5442490")`^.
 
 Theme is *Minty* by [Bootswatch](https://bootswatch.com/minty/).
 
@@ -868,10 +868,12 @@ Citations made with the `RefManageR`^`r Cite(pkgs, "RefManageR")`^ package.
 
 ## References {-}
 ```{r refs-bib, include = TRUE, results =  "asis"}
+# Citations for literature and tools
 RefManageR::PrintBibliography(refs)
 ```
 
 ## Packages {-}
 ```{r pkgs-bib, include = TRUE, results = "asis"}
+# Citations for packages
 RefManageR::PrintBibliography(pkgs)
 ```
