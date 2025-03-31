@@ -2,7 +2,7 @@
 [![Version](https://img.shields.io/badge/R-4.1.2-blue)](https://www.r-project.org/)
 
 ---
-title: Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by a Bacterial Prophage Region
+Characterisation of a Putative Agent of Horizontal Gene Transfer Encoded by a Bacterial Prophage Region
 ---
 # Overview
 This project was completed as a requirement for the University of York, Department of Biology, M-level module: Data Science option of BIO00058M Data Analysis. The project tidies, processes, and analyses data obtained from University of York, Department of Biology, C-level module: Bioscience Techniques strand of BIO00058I Laboratory and Professional Skills for Bioscientists II.
